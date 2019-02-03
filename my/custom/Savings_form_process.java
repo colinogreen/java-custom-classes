@@ -128,15 +128,18 @@ public class Savings_form_process {
     {
         return balancePlusInterestTotals;
     }
-    private void show_information(String ex_str, String title){
+    private void show_information(String ex_str, String title)
+    {
         this.showMessagePopup(ex_str, title);
     }
 
-    private void show_exception(String ex_str, String title){
+    private void show_exception(String ex_str, String title)
+    {
         this.showMessagePopup(ex_str, "Input error");
     }
 
-    private void showMessagePopup( String msg, String msg_title ){
+    private void showMessagePopup( String msg, String msg_title )
+    {
         //JOptionPane.showMessageDialog (null, msg, msg_title, JOptionPane.DEFAULT_OPTION);
     }
 
@@ -210,20 +213,6 @@ public class Savings_form_process {
 
     // ++ NEW FUNCTIONS - 2019-01 | END  ++ //
 
-<<<<<<< HEAD
-=======
-    // https://stackoverflow.com/questions/11248119/java-equivalent-of-phps-implode-array-filter-array
-    private static String implode(String glue, String[] strArray)
-    {
-        String ret = "";
-        for(int i=0;i < strArray.length;i++)
-        {
-            ret += (i == strArray.length - 1) ? strArray[i] : strArray[i] + glue;
-        }
-        return ret;
-    }
-
->>>>>>> bf24f50857f7d3cff295cc7903ffcd20d312022b
     // ** Type converters | START **
 
     // Method overload, if necessary..
