@@ -7,8 +7,10 @@ public class TestOutput {
     {
         System.out.println("Hello Test Output") ;
         int[] nums = {5,1,2,11,3}; //List or Vector
+        //Object nums = new Object[][];
         Arrays.sort(nums); //Collections.sort() for List,Vector
-        String a=Arrays.toString(nums); //toString the List or Vector
+        //String a=Arrays.toString(nums); //toString the List or Vector
+        String a= ArrayHelper.implode("\n", nums); //toString the List or Vector //toString the List or Vector
         //String ar[]=a.substring(1,a.length()-1).split(", ");
         System.out.println(a);
     }
