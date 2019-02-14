@@ -14,8 +14,8 @@ import java.util.ArrayList;
 
 public class Savings_interest_engine {
 // Used by both the Desktop app and the Android App!    
-    private ArrayList<Double> periodInterest = new ArrayList();
-    private ArrayList<Double> periodInterestSum = new ArrayList();
+    private ArrayList<Double> periodInterest = new ArrayList<>();
+    private ArrayList<Double> periodInterestSum = new ArrayList<>();
     //private double[] periodInterestSum = {};
     private ArrayList<Double> periodMonthlyInterest = new ArrayList<>();
 
@@ -249,7 +249,7 @@ public class Savings_interest_engine {
         this.periodBalancePlusInterest = new ArrayList<>();
     }
     // Add item to the periodBalancePlusInterest List
-    public ArrayList getPeriodBalancePlusInterestArray()
+    public ArrayList<Double> getPeriodBalancePlusInterestArray()
     {
         return this.periodBalancePlusInterest;
     }
@@ -345,7 +345,7 @@ public class Savings_interest_engine {
         return this.periodMonthlyInterest;
     }
 
-    public ArrayList getPeriodInterest()
+    public ArrayList<Double> getPeriodInterest()
     {
         return this.periodInterest;
     }
@@ -353,7 +353,7 @@ public class Savings_interest_engine {
 //    {
 //        return this.periodInterestSum;
 //    }
-    public ArrayList getPeriodInterestSum()
+    public ArrayList<Double> getPeriodInterestSum()
     {
         return this.periodInterestSum;
     }

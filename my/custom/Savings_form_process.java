@@ -99,48 +99,34 @@ public class Savings_form_process {
         return exceptionMessage;
     }
     
-    private void setInterestTotals(ArrayList arrayList)
+    private void setInterestTotals(ArrayList<Double> arrayList)
     {
         interestTotals = arrayList;
     }
 
-    public ArrayList getInterestTotals()
+    public ArrayList<Double> getInterestTotals()
     {
         return interestTotals;
     }
 
-    private void setInterestSumTotals(ArrayList arrayList)
+    private void setInterestSumTotals(ArrayList<Double> arrayList)
     {
         interestSumTotals = arrayList;
     }
     
-    public ArrayList getInterestSumTotals()
+    public ArrayList<Double> getInterestSumTotals()
     {
         return interestSumTotals;
     }
     
-    private void setBalancePlusInterestTotals(ArrayList arrayList)
+    private void setBalancePlusInterestTotals(ArrayList<Double> arrayList)
     {
         balancePlusInterestTotals = arrayList;
     }
     
-    public ArrayList getBalancePlusInterestTotals()
+    public ArrayList<Double> getBalancePlusInterestTotals()
     {
         return balancePlusInterestTotals;
-    }
-    private void show_information(String ex_str, String title)
-    {
-        this.showMessagePopup(ex_str, title);
-    }
-
-    private void show_exception(String ex_str, String title)
-    {
-        this.showMessagePopup(ex_str, "Input error");
-    }
-
-    private void showMessagePopup( String msg, String msg_title )
-    {
-        //JOptionPane.showMessageDialog (null, msg, msg_title, JOptionPane.DEFAULT_OPTION);
     }
 
     // ** SET Form field values from GUI FORM **
