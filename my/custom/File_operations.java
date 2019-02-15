@@ -18,6 +18,7 @@ public class File_operations {
     int result;
     private String displayTextToExport;
     private String responseMessageText;
+    private Boolean saveSuccess;
     JFileChooser file;
     public File_operations(String displayTextFromApp){
          
@@ -35,6 +36,15 @@ public class File_operations {
             setShowSaveDialogResult(file.showSaveDialog(null));
             System.out.println("** DEBUG NEW CLASS: showSaveDialog returns value: '" + result + " **'");
             fileExportSaveProcess();       
+    }
+    
+    private void setSaveSuccess(Boolean saveResult)
+    {
+        this.saveSuccess = saveResult;
+    }
+    public Boolean getSaveSuccess()
+    {
+        return this.saveSuccess;
     }
     
     private void setDisplayTextToExport(String text)
@@ -64,14 +74,16 @@ public class File_operations {
                 //if (res == JFileChooser.APPROVE_OPTION &&( !getDisplayText().equals("") || getDisplayText() != null))
                 if (result == JFileChooser.APPROVE_OPTION )
                 {
-                  File getFile = file.getSelectedFile();
-                  System.out.println("Attempting to save text, getDisplayText(): '" + getDisplayTextToExport() + "'");
+                  File saveFile = file.getSelectedFile();
+                  //System.out.println("Attempting to save text, getDisplayText(): '" + getDisplayTextToExport() + "'");
                   try
                   {
                       //System.out.println("INSIDE try for: '" + saveText + "'"); 
-                      FileWriter fw = new FileWriter(getFile);
+                      FileWriter fw = new FileWriter(saveFile);
                        //fw.write(saveText);
                        fw.write(getDisplayTextToExport());
+                       this.setSaveSuccess(true) ;
+                       this.setResponseMessageText("File was saved with the name, '" + saveFile.getName() + "'\nat the path, '" + saveFile.getPath() + "'");
                        fw.close();
                   }
                   //catch(IOException e)
@@ -86,9 +98,17 @@ public class File_operations {
                 }
                 else if(getDisplayTextToExport() == null || getDisplayTextToExport().equals("") )
                 {
+                    this.setSaveSuccess(false) ;
                     this.setResponseMessageText("Cannot save file as No calculations appear to have been made!");
                     //this.displayResultInTextField();
-                }          
+                }
+                else
+                {
+                    this.setSaveSuccess(false) ;
+                    this.setResponseMessageText("An unknown error occured saving file!");
+                }
+                
+                
             //}
             //catch(Throwable any)
             //{
@@ -96,6 +116,7 @@ public class File_operations {
             //}
         }
         else if(result ==1){
+            this.setSaveSuccess(false) ;
             setResponseMessageText("Export Cancelled!");
         }        
         return result;
