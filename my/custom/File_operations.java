@@ -20,6 +20,8 @@ public class File_operations {
     private String responseMessageText;
     private Boolean saveSuccess;
     JFileChooser file;
+    
+    // ++ Initiate with Constructor (Change operation for other apps if necessary)
     public File_operations(String displayTextFromApp){
          
         file = new JFileChooser();
@@ -61,48 +63,16 @@ public class File_operations {
     public String getResponseMessageText()
     {
         return this.responseMessageText;
-    }     
+    }
+    
+    // ++ Process File Export attempt
     private int fileExportSaveProcess()
     {
 
         if(this.getShowSaveDialogResult() == 0)
         {
-
-            if (this.getShowSaveDialogResult() == JFileChooser.APPROVE_OPTION )
-            {
-              File saveFile = file.getSelectedFile();
-              //System.out.println("Attempting to save text, getDisplayText(): '" + getDisplayTextToExport() + "'");
-              try
-              {
-                  //System.out.println("INSIDE try for: '" + saveText + "'"); 
-                  FileWriter fw = new FileWriter(saveFile);
-                   //fw.write(saveText);
-                   fw.write(getDisplayTextToExport());
-                   this.setSaveSuccess(true) ;
-                   this.setResponseMessageText("File was saved with the name, '" + saveFile.getName() + "'\nat the path, '" + saveFile.getPath() + "'");
-                   fw.close();
-              }
-              //catch(IOException e)
-              catch(Throwable any)
-              {
-                  //this.setDisplayText(e.getMessage());
-                  this.setResponseMessageText("Error:\n" + any);
-                  //this.displayResultInTextField();
-              }
-
-
-            }
-            else if(getDisplayTextToExport() == null || getDisplayTextToExport().equals("") )
-            {
-                this.setSaveSuccess(false) ;
-                this.setResponseMessageText("Cannot save file as No calculations appear to have been made!");
-                //this.displayResultInTextField();
-            }
-            else
-            {
-                this.setSaveSuccess(false) ;
-                this.setResponseMessageText("An unknown error occured saving file!");
-            }
+            // ** Attempt to export data to file
+            this.fileExportSaveProcessAttempt();
 
         }
         else if(this.getShowSaveDialogResult() ==1){
@@ -110,6 +80,47 @@ public class File_operations {
             setResponseMessageText("Export Cancelled!");
         }        
         return this.getShowSaveDialogResult();
+    }
+    
+    // ++ Attempt to export data to file if 'this.getShowSaveDialogResult()' = 0
+    private void fileExportSaveProcessAttempt()
+    {
+        if (this.getShowSaveDialogResult() == JFileChooser.APPROVE_OPTION )
+        {
+            File saveFile = file.getSelectedFile();
+            //System.out.println("Attempting to save text, getDisplayText(): '" + getDisplayTextToExport() + "'");
+            try
+            {
+                //System.out.println("INSIDE try for: '" + saveText + "'"); 
+               FileWriter fw = new FileWriter(saveFile);
+               //fw.write(saveText);
+               fw.write(getDisplayTextToExport());
+               
+               this.setSaveSuccess(true) ;
+               this.setResponseMessageText("File was saved with the name, '" + saveFile.getName() + "'\nat the path, '" + saveFile.getPath() + "'");
+               fw.close();
+            }
+            //catch(IOException e)
+            catch(Throwable any)
+            {
+               //this.setDisplayText(e.getMessage());
+               this.setResponseMessageText("Error:\n" + any);
+               //this.displayResultInTextField();
+            }
+
+
+        }
+        else if(getDisplayTextToExport() == null || getDisplayTextToExport().equals("") )
+        {
+            this.setSaveSuccess(false) ;
+            this.setResponseMessageText("Cannot save file as No calculations appear to have been made!");
+            //this.displayResultInTextField();
+        }
+        else
+        {
+            this.setSaveSuccess(false) ;
+            this.setResponseMessageText("An unknown error occured saving file!");
+        }
     }
 
     private void setShowSaveDialogResult(int res)
