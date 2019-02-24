@@ -37,7 +37,7 @@ public class Savings_form_process {
 
     //private Boolean firstRun = true; // For clearing existing data, etc.
 
-    DecimalFormat decimal = new DecimalFormat(".##");
+    DecimalFormat decimal = new DecimalFormat("#.00");
     private String displayText;
     //private String periodType = "Year";
 
