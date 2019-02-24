@@ -196,7 +196,50 @@ public class Savings_form_process {
     {
         return this.displayText;
     }
+    // ++ Get the summary of calculations selected for returning to the GUI or exported output 
+    public String getFormSelectionSummary()
+    {
+        String periodCalculated = "annually.";
+        if(interestAdded_field.equals("Monthly"))
+        {
+            periodCalculated = "monthly.";
+        }
+        String yearsMonthsStr = periodYearsMonths_field.toString().toLowerCase();
+        yearsMonthsStr = yearsMonthsStr.substring(0, yearsMonthsStr.length()-1);
+        return "Savings of " + savings_field + " x " 
+            + interestRate_field + " over a " + period_field + " " + yearsMonthsStr
+            + " period, calculated " + periodCalculated;   
+    }
+    
+    // ++ Get the Array format summary of calculations selected for returning to the GUI or exported output...
+    // ... Order [ Savings amount, interest rate, period (number), years or months, annually or months ]
+    public String[] getFormSelectionSummary(Boolean returnArray)
+    {
+        if(returnArray == false)
+        {
+            //return an empty array if parameter not true/filled
+            return new String[0];
+        }
+        
+        String periodCalculated = "annually.";
+        
+        if(interestAdded_field.equals("Monthly"))
+        {
+            periodCalculated = "monthly.";
+        }
+        
+        
+        String yearsMonthsStr = periodYearsMonths_field.toString().toLowerCase();
+        yearsMonthsStr = yearsMonthsStr.substring(0, yearsMonthsStr.length()-1);
+        
+        // ** Build array of the summary info to return before returning...
+        String selectionSummary[] = {
+            savings_field, interestRate_field, period_field.toString(), yearsMonthsStr, periodCalculated
+        };
+ 
+        return selectionSummary;
 
+    }
     // ++ NEW FUNCTIONS - 2019-01 | END  ++ //
 
     // ** Type converters | START **
