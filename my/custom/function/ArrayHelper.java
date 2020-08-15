@@ -48,5 +48,45 @@ public class ArrayHelper {
         }        
         return ret;
    }
+   
+    public static void sort(String []s, int n) 
+    { 
+        for (int i=1 ;i<n; i++) 
+        { 
+            String temp = s[i]; 
+
+            // Insert s[j] at its correct position 
+            int j = i - 1; 
+            while (j >= 0 && temp.length() < s[j].length()) 
+            { 
+                s[j+1] = s[j]; 
+                j--; 
+            } 
+            s[j+1] = temp; 
+        } 
+    } 
+
+    // Function to print the sorted array of string 
+    public static void printArraystring(String str[], int n) 
+    { 
+        for (int i=0; i<n; i++) 
+        {
+            System.out.print(str[i]+" "); 
+        }
+         System.out.println();
+    } 
+
+//    // Driver function 
+//    public static void main(String args[]) 
+//    { 
+//        String []arr = {"GeeksforGeeks", "I", "from", "am"}; 
+//        int n = arr.length; 
+//
+//        // Function to perform sorting 
+//        sort(arr,n); 
+//        // Calling the function to print result 
+//        printArraystring(arr, n); 
+//
+//    } 
 
 }
