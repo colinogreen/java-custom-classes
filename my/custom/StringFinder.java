@@ -67,7 +67,15 @@ public class StringFinder
 
         setSearchList();
     }
-    
+    /**
+     * 
+     * 1-5 postions: quick.
+     * 6 positions:  loops:     308,915,776 | (Fairly quick using Core i5 2016 | 5 minutes > 11 minutes, depending on reg_exp search)
+     * 7 positions:  loops:   8,031,810,176 | (8 billion+ | Appears to take a good few hours on Core i5 2016!)
+     * 8 positions:  loops: 208,827,064,576 | (208 billion+ | pointless if not using supercomputer!)
+        
+     * @param length 
+     */
     public void setStringLength(int length)
     {
         string_length = length;
@@ -95,7 +103,7 @@ public class StringFinder
 //            "zzzzzz",
             "caazzzz",
             "adamant",
-            "ayrshir",
+            "johnson",
             "over",
             "that",
             "lazy",
@@ -186,7 +194,7 @@ public class StringFinder
     private void incrementSearchStringLengthCountByItem(int val)
     {
         //System.out.println("Method: incrementSearchStringLengthCountByItem: " + val);
-        System.out.println("process_search_string_length_count string length:" + (val +1));
+        //System.out.println("process_search_string_length_count string length:" + (val +1));
         
         //System.exit(0);
         process_search_string_length_count[val] ++;
@@ -233,9 +241,20 @@ public class StringFinder
     {
 //        items = new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", // Normal alphabetical order.
 //            "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+        
+//        items = new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", // Normal alphabetical order with numbers.
+//            "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
-        items = new String[]{"j", "a", "c", "d", "e", "f", "g", "h", "i", "b", "k", "l", "m", // Changed order test: j < a < b
-            "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+            items = new String[]
+            {
+                "a","A", "b","B", "c","C", "d","D", "e","E", "f","F", "g","G", 
+                "h","H", "i","I", "j","J", "k","K", "l","L", "m","M", // Normal alphabetical order with numbers AND Uppercase.
+            "n","N", "o","O", "p","P", "q","Q", "r","R", "s","S", "t","T", 
+            "u","U", "v","V", "w","W", "x","X", "y","Y", "z","Z", 
+            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+            };
+//        items = new String[]{"j", "a", "c", "d", "e", "f", "g", "h", "i", "b", "k", "l", "m", // Changed order test: j < a < b
+//            "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
     }
     /**
      * Get the items in the search list, if necessary.
@@ -288,9 +307,7 @@ public class StringFinder
     // ** Starts process of finding strings according to incremental string lengths
     private void processStringByStringLength()
     {
-        //System.out.println("+* processStringByStringLength method string_length: " + string_length + " *+");
-        //position_pattern_match_count getSearchStringLengthCountByItem
-        
+
         for(int i=1; i<= string_length; i++)
         {        
             position_pattern_match_count = 0;
@@ -376,14 +393,12 @@ public class StringFinder
                 break;
             case 6:
                 getNextDisplayStringItemGen(pos6, loop_number, false, string_item - 1);
-                //getNextDisplayStringItem6(loop_number);
                 break;
             case 7:
                 getNextDisplayStringItemGen(pos7, loop_number, false, string_item - 1);
                 break;
             default:
-                getNextDisplayStringItemGen(pos8, loop_number, false, string_item - 1);
-                
+                getNextDisplayStringItemGen(pos8, loop_number, false, string_item - 1);               
         }
 
     }
@@ -437,15 +452,12 @@ public class StringFinder
             printMessage("* found '" + this.getStringBlockDisplayString() + "' at loop # " + loop_number);
             position_pattern_match_count++;// getSearchStringLengthCountByItem
             //System.out.println("* printStringBlockDisplayString Found position_pattern_match_count: " + position_pattern_match_count + "++");
-            pattern_match_count++;
-            //System.out.println("Note: continuing with pattern_match_count:" + pattern_match_count + " and pattern_array.length: " + pattern_array.length + "!");
-            
+            pattern_match_count++;  
         }
 
         if(loop_number % loop_report_divisor == 0)
         {
-            System.out.println("Searching: Reached loop # " + loop_number + " in this cycle. (+" + loop_report_divisor + ")");
-            
+            System.out.println("Searching: Reached loop # " + loop_number + " in this cycle. (+" + loop_report_divisor + ")");            
         }
         
         if(pattern_match_count == pattern_array.length)
@@ -491,3 +503,10 @@ public class StringFinder
     }
     
 }
+/*
+        //String pattern = "(.*)(\\d+)(.*)";
+        //String pattern = "^[b|o]";
+        //String pattern = "^a$|^zz$|^rot$|^rots$|^zoom$|^boast$|^cccccc$|^rotter$|^school$|^aaaaaaa$|^baaabaa$|^caaaaac$|^rotters$|^zzzzzzz$|^cardigan$|^zzzzzzzz$";
+        //String pattern = "^[a]$|^[e]$|^[x]$|^z$|^xx$|^the$|^quick$|^brown$|^fox$|^jumps$|^over$|^the$|^lazy$|^dog$|^bbbbbb$|^ffffff$|^mmmmmm$|^wwwwww$";
+        //pattern = "^[i]$|^am$|^not$|^over$|^this$|^total$|^fiasco$";
+*/
