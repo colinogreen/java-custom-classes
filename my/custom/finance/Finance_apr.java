@@ -27,14 +27,20 @@ public class Finance_apr
     private double month_repayment;
     private double day_int_charge;
     
-    public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
+    //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
+    public Finance_apr()
     {
-        Calendar date1 = Calendar.getInstance();
+       
+    }
+    
+    public void processMortgateInterestCalculation()
+    {
+       Calendar date1 = Calendar.getInstance();
         Calendar date2 = Calendar.getInstance();
         
-        this.setMonthRepayment(month_repayment);
-        this.setInterestRate(apr_int_rate);
-        this.setMortgageRemaining(mort_remain);
+//        this.setMonthRepayment(month_repayment);
+//        this.setInterestRate(apr_int_rate);
+//        this.setMortgageRemaining(mort_remain);
         
 //        SimpleDateFormat future_date = new SimpleDateFormat ("yyyy-MM-dd");
 //        date2.;
@@ -49,7 +55,7 @@ public class Finance_apr
         long diff = date2.getTimeInMillis() - date1.getTimeInMillis();
 
         float dayCount = (float) diff / (24 * 60 * 60 * 1000);
-        
+        System.out.println("** Calculations are based on a monthly repayment of £" + month_repayment + " **");
         System.out.println("== Calculating the days between " + date1_string + " and " + date2_string + "("+ date_2_day_of_week +") ==");
         System.out.println("== dayCount = " + dayCount);
         //Initializing the date formatter
@@ -95,11 +101,11 @@ public class Finance_apr
             
             //mort_remain = 23274.67;
         }
-        
+        System.out.println("** Calculations were based on a monthly repayment of £" + month_repayment + " **");
         System.out.println("== Final amount of days: ==");
-        System.out.println("Date "+date+" plus " + days_count + " days is "+date_add);        
+        System.out.println("Date "+date+" plus " + days_count + " days is "+date_add);          
     }
-    
+            
     public void setMonthRepayment(double amount)
     {
         this.month_repayment = amount;
@@ -142,8 +148,31 @@ public class Finance_apr
     {
         this.mortgage_remaining = amount;
     }
-
     
+    // START | Questions for prompts in Desktop program or Android app, etc.
+    public String promptForMonthlyRepayment()
+    {
+        return "Enter the monthly mortgage repayment";
+    }
+    public String promptForMortgateRemaining()
+    {
+        return "Enter the mortgage balance remaining";
+    }
+    public String promptForInterestRate()
+    {
+        return "Enter the interest rate";
+    }
+    /**
+     * FALSE for end date and TRUE for start date
+     * @param start_date
+     * @return 
+     */
+    public String promptForDateOfCalculations(boolean start_date)
+    {
+        String start_end = start_date ?"start": "end";
+        return "Enter the " + start_end + " date of the calculations";
+    } 
+    // END | Questions for prompts in Desktop program or Android app, etc.
     /**
      * Used in original pre-2021 mortgage-calculator
      * @return 
