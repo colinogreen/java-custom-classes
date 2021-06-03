@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -18,10 +19,11 @@ public class Finance_apr
 {  
     private double mortgage_remaining;
     private double interest_rate;
-
-    //double mort_remain = 23274.67;
-    //double mort_remain_new;
-    //double apr_int_rate = 1.64;
+    
+    //* For validation
+    final static String DOUBLE_PATTERN = "[0-9]+(\\.){0,1}[0-9]*";
+    final static String INTEGER_PATTERN = "\\d+";
+    
     double day_interest_rate;
     //double day_interest_charge;
     private double month_repayment;
@@ -105,6 +107,14 @@ public class Finance_apr
         System.out.println("== Final amount of days: ==");
         System.out.println("Date "+date+" plus " + days_count + " days is "+date_add);          
     }
+    
+    // * Validation | START //
+    
+    public boolean checkIfNumberIsADouble(String number)
+    {
+        return Pattern.matches(DOUBLE_PATTERN, number);
+    }
+    // * Validation | END //
             
     public void setMonthRepayment(double amount)
     {
