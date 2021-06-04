@@ -29,6 +29,12 @@ public class Finance_apr
     private double month_repayment;
     private double day_int_charge;
     
+    private String date_from;
+    private String date_to;
+    
+    private Calendar calendar_date_from;
+    private Calendar calendar_date_to;
+    
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
     public Finance_apr()
     {
@@ -37,24 +43,24 @@ public class Finance_apr
     
     public void processMortgateInterestCalculation()
     {
-       Calendar date1 = Calendar.getInstance();
-        Calendar date2 = Calendar.getInstance();
+       this.calendar_date_from = Calendar.getInstance();
+       this.calendar_date_to = Calendar.getInstance();
         
 //        this.setMonthRepayment(month_repayment);
 //        this.setInterestRate(apr_int_rate);
 //        this.setMortgageRemaining(mort_remain);
         
 //        SimpleDateFormat future_date = new SimpleDateFormat ("yyyy-MM-dd");
-//        date2.;
-        date2.set(2022, 2,31);
-        int date_2_day_of_week = date2.get(Calendar.DAY_OF_WEEK); // 5 = Thursday, 0 = Saturday, etc.
+//        calendar_date_to.;
+        this.calendar_date_to.set(2022, 2,31);
+        int date_2_day_of_week = calendar_date_to.get(Calendar.DAY_OF_WEEK); // 5 = Thursday, 0 = Saturday, etc.
        
         SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");        
-        String date1_string = ft.format(date1.getTime());
+        String date1_string = ft.format(calendar_date_from.getTime());
 
-        String date2_string = ft.format(date2.getTime());
+        String date2_string = ft.format(calendar_date_to.getTime());
 
-        long diff = date2.getTimeInMillis() - date1.getTimeInMillis();
+        long diff = calendar_date_to.getTimeInMillis() - calendar_date_from.getTimeInMillis();
 
         float dayCount = (float) diff / (24 * 60 * 60 * 1000);
         System.out.println("** Calculations are based on a monthly repayment of £" + month_repayment + " **");
@@ -72,7 +78,7 @@ public class Finance_apr
         
         System.out.println("== Lets do a Local date addition ==");
         SimpleDateFormat today_date = new SimpleDateFormat ("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(today_date.format(date1.getTime()));
+        LocalDate date = LocalDate.parse(today_date.format(calendar_date_from.getTime()));
 
         double mort_remain_new;
         //double apr_int_rate = 1.64;
@@ -125,6 +131,28 @@ public class Finance_apr
     {
         return this.month_repayment;
     }
+
+            
+    public void setDateToCalculateFrom(String df)
+    {
+        this.date_from = df;
+    }
+    
+    public String getDateToCalculateFrom()
+    {
+        return this.date_from;
+    }
+            
+            
+    public void setDateToCalculateTo(String dt)
+    {
+        this.date_from = dt;
+    }
+    
+    public String getDateToCalculateTo()
+    {
+        return this.date_to;
+    }
   
     /**
      * Note: This gets set by call to setInterestRate method
@@ -173,6 +201,24 @@ public class Finance_apr
         return "Enter the interest rate";
     }
     /**
+     * Overload!
+     * FALSE for end date and TRUE for start date and can also add date format guide text, if necessary.
+     * @param start_date
+     * @param add_date_format
+     * @return 
+     */
+    public String promptForDateOfCalculations(boolean start_date, boolean add_date_format)
+    {
+        String start_end = start_date ?"start": "end";
+        String text = "Enter the " + start_end + " date of the calculations";
+        
+        text = add_date_format ? text + " (format: yyyy-mm-dd)": text;
+        
+        return text;
+    }
+    
+    /**
+     * Overload!
      * FALSE for end date and TRUE for start date
      * @param start_date
      * @return 
@@ -180,6 +226,8 @@ public class Finance_apr
     public String promptForDateOfCalculations(boolean start_date)
     {
         String start_end = start_date ?"start": "end";
+        //String text = "Enter the " + start_end + " date of the calculations";
+         
         return "Enter the " + start_end + " date of the calculations";
     } 
     // END | Questions for prompts in Desktop program or Android app, etc.
