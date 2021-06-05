@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.time.*;
 
+
+
 /**
  *
  * @author colino1804
@@ -38,6 +40,7 @@ public class Finance_apr
     private LocalDate calendar_date_to;
     //private Calendar calendar_date_to;
     final static int DATE_PLUS_MONTHS = 6;
+    private HashMap<String, String> mortgage_summary = new HashMap<>() ;
     
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
     public Finance_apr()
@@ -47,61 +50,34 @@ public class Finance_apr
     
     public void processMortgateInterestCalculation()
     {
-//        this.calendar_date_from = Calendar.getInstance();
-//        this.calendar_date_to = Calendar.getInstance();
 
-        //this.calendar_date_from = LocalDate.now();
-        //this.calendar_date_to=  LocalDate.parse("2022-04-01");
         this.setDateRanges();
-        //int date_2_day_of_week = calendar_date_to.get(Calendar.DAY_OF_WEEK); // 5 = Thursday, 0 = Saturday, etc.
-        //String date_2_day_of_week = calendar_date_to.getDayOfWeek().toString(); // 5 = Thursday, 0 = Saturday, etc.
-       
-        //SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");        
-        //String date1_string = ft.format(calendar_date_from.toString());
-        //String date1_string = this.calendar_date_from .toString();
 
-        //String date2_string = ft.format(calendar_date_to.toString());
-        //String date2_string =this.calendar_date_to.toString();
-
-        //long diff = calendar_date_to.getTimeInMillis() - calendar_date_from.getTimeInMillis();
-        //long diff = calendar_date_to. - calendar_date_from.;
-
-        //float dayCount = (float) diff / (24 * 60 * 60 * 1000);
         float dayCount = Duration.between(this.calendar_date_from.atStartOfDay(), this.calendar_date_to.atStartOfDay()).toDays();
         System.out.println("** Calculations are based on a monthly repayment of £" + month_repayment + " **");
         //System.out.println("== Calculating the days between " + date1_string + " and " + date2_string + "("+ date_2_day_of_week +") ==");
-        System.out.println("== dayCount = " + dayCount);
+        //System.out.println("== dayCount = " + dayCount);
         //Initializing the date formatter
-        DateFormat Date = DateFormat.getDateInstance();
-        //Initializing Calender Object
-        //Calendar cals = Calendar.getInstance();
-        //Displaying the actual date
-        System.out.println("The original Date: " + this.calendar_date_from.toString());
-        //Using format() method for conversion
-        //String currentDate = Date.format(cals.getTime());
-        //System.out.println("Formatted Date: " + currentDate);
+        //DateFormat Date = DateFormat.getDateInstance();
+
+        //System.out.println("The original Date: " + this.calendar_date_from.toString());
         
-        System.out.println("== Lets do a Local date addition ==");
-        SimpleDateFormat today_date = new SimpleDateFormat ("yyyy-MM-dd");
-        //LocalDate date = LocalDate.parse(today_date.format(calendar_date_from.getTime()));
+        //System.out.println("== Lets do a Local date addition ==");
+
         LocalDate date = this.calendar_date_from;
 
-        double mort_remain_new;
-        //double apr_int_rate = 1.64;
-        //double day_int_rate = (this.interest_rate / 365);
-        //double day_int_charge;
-
-        //Float f = dayCount;
-        //int days_count = (int)dayCount;
-        //int days_count = java.;
         LocalDate date_add = date.plusDays((int)dayCount);
         LocalDate date_add_single;
         for(int i = 0; i <= (int)dayCount; i++)
         {
             date_add_single = date.plusDays(i);
+            // If the loop is not at the very first item and it is the first day of the month, reduce the mortgage remaining by the mortgage amount.
             if(i != 0 && date_add_single.getDayOfMonth() == 1)
             {
+
                 this.mortgage_remaining -= this.month_repayment; // deduct monthly mortgage repayment if it is the 1st of a month and not the first run of the loop (which may take into account first day, anyway.
+                mortgage_summary.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
+                //mortgage_summary.put(date_add_single.toString(), "Count: ");
             }
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
             
@@ -113,10 +89,43 @@ public class Finance_apr
 
         }
         System.out.println("** Calculations were based on a monthly repayment of £" + month_repayment + " **");
-        System.out.println("== Final amount of days: ==");
-        System.out.println("Date " + date + " plus " + (int)dayCount + " days is "+date_add);          
+        //System.out.println("== START OF MONTH SUMMARY ==");
+        
+        System.out.println("== Mortgage Summary ==");
+        System.out.println(mortgage_summary);
+                
+        System.out.println("== Final amount of days ==");
+        System.out.println("Date " + date + " plus " + (int)dayCount + " days is "+date_add); 
+        
+        
     }
     
+    public void showSummary(boolean commandlinesummary)
+    {
+        if(commandlinesummary == true)
+        {
+            this.showCommandLineSummary();
+        }
+    }
+    
+    private void showCommandLineSummary()
+    {
+
+
+        this.mortgage_summary.forEach((key, value)->{
+            
+            String[] value_items = value.split(" ");
+            System.out.print("Date: " + key + " | ");
+            //System.out.print("Date: " + value_items[0] + " ");
+            System.out.print("Mortgage Remaining: " + value_items[0] + " | ");
+            System.out.print("Mortgage Rate: " + value_items[1] + " | ");
+            //System.out.print("Interest per day: " + value_items[2] + " | ");
+            System.out.println("Interest per day: " + value_items[2]);
+
+        });
+                    
+        
+    }
     // * Validation | START //
     
     public boolean checkIfNumberIsADouble(String number)
