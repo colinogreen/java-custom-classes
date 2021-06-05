@@ -37,6 +37,7 @@ public class Finance_apr
     //private Calendar calendar_date_from;
     private LocalDate calendar_date_to;
     //private Calendar calendar_date_to;
+    final static int DATE_PLUS_MONTHS = 6;
     
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
     public Finance_apr()
@@ -49,13 +50,13 @@ public class Finance_apr
 //        this.calendar_date_from = Calendar.getInstance();
 //        this.calendar_date_to = Calendar.getInstance();
 
-        this.calendar_date_from = LocalDate.now();
-        this.calendar_date_to=  LocalDate.parse("2022-04-01");
+        //this.calendar_date_from = LocalDate.now();
+        //this.calendar_date_to=  LocalDate.parse("2022-04-01");
         this.setDateRanges();
         //int date_2_day_of_week = calendar_date_to.get(Calendar.DAY_OF_WEEK); // 5 = Thursday, 0 = Saturday, etc.
         //String date_2_day_of_week = calendar_date_to.getDayOfWeek().toString(); // 5 = Thursday, 0 = Saturday, etc.
        
-        SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");        
+        //SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");        
         //String date1_string = ft.format(calendar_date_from.toString());
         //String date1_string = this.calendar_date_from .toString();
 
@@ -166,11 +167,10 @@ public class Finance_apr
         }
         else
         {
+            this.setDefaultDateFrom();
             System.out.println("Note: default start date to: " + this.calendar_date_from.toString());
         }
 
-        
-        
         String date_set2[] = this.date_to.split("-");
         if(date_set1.length == 3)
         {
@@ -182,11 +182,35 @@ public class Finance_apr
         }
         else
         {
-            this.calendar_date_to = this.calendar_date_from.plusMonths(6);
+            this.setDefaultDateTo();
             System.out.println("Note: Setting default end date to: " + this.calendar_date_to.toString());
         }
     }
-  
+    
+    public void setDefaultDateFrom()
+    {
+        this.calendar_date_from = LocalDate.now();
+    }
+    public void setDefaultDateTo()
+    {
+        if(this.calendar_date_to == null)
+        {
+           System.out.println("** DEBUG: calendar_date_to WAS NULL **\n");
+           this.calendar_date_to = LocalDate.now().plusMonths(DATE_PLUS_MONTHS);
+        }
+        
+    }
+    
+    public String getDefaultDateFrom()
+    {
+        return this.calendar_date_from.toString();
+    }
+    
+    
+    public String getDefaultDateTo()
+    {
+        return this.calendar_date_to.toString();
+    }
     /**
      * Note: This gets set by call to setInterestRate method
      */
@@ -204,6 +228,7 @@ public class Finance_apr
      * Testing method:
      * Used in original pre-2021 mortgage-calculator
      */
+    
     public void anotherHello()
     {
         System.out.println("Hello world from Finance_apr class!");
@@ -223,16 +248,19 @@ public class Finance_apr
     // START | Questions for prompts in Desktop program or Android app, etc.
     public String promptForMonthlyRepayment()
     {
-        return "Enter the monthly mortgage repayment";
+        return "Enter the monthly mortgage repayment: ";
     }
+    
     public String promptForMortgateRemaining()
     {
-        return "Enter the mortgage balance remaining";
+        return "Enter the mortgage balance remaining: ";
     }
+    
     public String promptForInterestRate()
     {
-        return "Enter the interest rate";
+        return "Enter the interest rate: ";
     }
+    
     /**
      * Overload!
      * FALSE for end date and TRUE for start date and can also add date format guide text, if necessary.
@@ -243,7 +271,7 @@ public class Finance_apr
     public String promptForDateOfCalculations(boolean start_date, boolean add_date_format)
     {
         String start_end = start_date ?"start": "end";
-        String text = "Enter the " + start_end + " date of the calculations";
+        String text = "Enter the " + start_end + " date of the calculations: ";
         
         text = add_date_format ? text + " (format: yyyy-mm-dd)": text;
         
@@ -261,7 +289,7 @@ public class Finance_apr
         String start_end = start_date ?"start": "end";
         //String text = "Enter the " + start_end + " date of the calculations";
          
-        return "Enter the " + start_end + " date of the calculations";
+        return "Enter the " + start_end + " date of the calculation: ";
     } 
     // END | Questions for prompts in Desktop program or Android app, etc.
     /**
