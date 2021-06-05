@@ -51,18 +51,10 @@ public class Finance_apr
     public void processMortgateInterestCalculation()
     {
 
-        this.setDateRanges();
+        //this.setDateRanges();
 
         float dayCount = Duration.between(this.calendar_date_from.atStartOfDay(), this.calendar_date_to.atStartOfDay()).toDays();
         System.out.println("** Calculations are based on a monthly repayment of £" + month_repayment + " **");
-        //System.out.println("== Calculating the days between " + date1_string + " and " + date2_string + "("+ date_2_day_of_week +") ==");
-        //System.out.println("== dayCount = " + dayCount);
-        //Initializing the date formatter
-        //DateFormat Date = DateFormat.getDateInstance();
-
-        //System.out.println("The original Date: " + this.calendar_date_from.toString());
-        
-        //System.out.println("== Lets do a Local date addition ==");
 
         LocalDate date = this.calendar_date_from;
 
@@ -80,9 +72,7 @@ public class Finance_apr
                 //mortgage_summary.put(date_add_single.toString(), "Count: ");
             }
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
-            
-            //System.out.println(i +") On date "+date+" plus " + i + " days is "+date_add_single);
-            //System.out.println(i +") On date "+ date_add_single +" the mortgate remaining is " + String.format("%.2f",this.mortgage_remaining) + " and for apr: " + this.interest_rate + ", the daily interest charge is "+ String.format("%.2f",this.day_int_charge) + "\nThe day of the month is " + date_add_single.getDayOfMonth());
+
             System.out.println(i +") On date "+ date_add_single +" the mortgate remaining is " + String.format("%.2f",this.mortgage_remaining) + " and for apr: " + this.interest_rate + ", the daily interest charge is "+ String.format("%.2f",this.day_int_charge));
             
             this.mortgage_remaining += this.day_int_charge;
@@ -132,6 +122,17 @@ public class Finance_apr
     {
         return Pattern.matches(DOUBLE_PATTERN, number);
     }
+    /**
+     * 
+     * @return true or false
+     */
+    public boolean isDateToGreaterThanDateFrom()
+    {
+        System.out.println("++ Debug Method: Finance_apr::isDateToGreaterThanDateFrom. Start date: " 
+                + this.calendar_date_to.toString() + " | End date: " +  this.calendar_date_from.toString() );
+        return this.calendar_date_to.isAfter(this.calendar_date_from);
+    }
+
     // * Validation | END //
             
     public void setMonthRepayment(double amount)
@@ -164,6 +165,28 @@ public class Finance_apr
     public String getDateToCalculateTo()
     {
         return this.date_to;
+    }
+    
+    public void setCalendarDate(String start_or_end_date, boolean start_date)
+    {
+        if(start_date == true)
+        {
+            this.setCalendarDateFrom(start_or_end_date);
+        }
+        else
+        {
+            this.setCalendarDateTo(start_or_end_date);
+        }
+    }
+    
+    private void setCalendarDateFrom(String date_from_string)
+    {
+        this.calendar_date_from = LocalDate.parse(date_to);
+    }
+
+    private void setCalendarDateTo(String date_to_string)
+    {
+        this.calendar_date_to = LocalDate.parse(date_to_string);
     }
     
     private void setDateRanges()
