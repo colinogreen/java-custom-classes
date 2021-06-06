@@ -40,7 +40,8 @@ public class Finance_apr
     private LocalDate calendar_date_to;
     //private Calendar calendar_date_to;
     final static int DATE_PLUS_MONTHS = 6;
-    private HashMap<String, String> mortgage_summary = new HashMap<>() ;
+    private HashMap<String, String> mortgage_summary = new HashMap<>();
+    private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
     
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
     public Finance_apr()
@@ -66,24 +67,42 @@ public class Finance_apr
             // If the loop is not at the very first item and it is the first day of the month, reduce the mortgage remaining by the mortgage amount.
             if(i != 0 && date_add_single.getDayOfMonth() == 1)
             {
-
-                this.mortgage_remaining -= this.month_repayment; // deduct monthly mortgage repayment if it is the 1st of a month and not the first run of the loop (which may take into account first day, anyway.
-                mortgage_summary.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
+                if(mortgage_remaining > this.month_repayment)
+                {
+                    this.mortgage_remaining -= this.month_repayment; // deduct monthly mortgage repayment if it is the 1st of a month and not the first run of the loop (which may take into account first day, anyway.
+                }
+                else
+                {
+                    this.mortgage_remaining = (this.mortgage_remaining - this.mortgage_remaining); // Possibly the final mortgage payment, so, finish up!
+                    
+                }
+                
+                
                 //mortgage_summary.put(date_add_single.toString(), "Count: ");
             }
+            
+            mortgage_summary_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
 
-            System.out.println(i +") On date "+ date_add_single +" the mortgate remaining is " + String.format("%.2f",this.mortgage_remaining) + " and for apr: " + this.interest_rate + ", the daily interest charge is "+ String.format("%.2f",this.day_int_charge));
+            //System.out.println(i +") On date "+ date_add_single +" the mortgate remaining is " + String.format("%.2f",this.mortgage_remaining) + " and for apr: " + this.interest_rate + ", the daily interest charge is "+ String.format("%.2f",this.day_int_charge));
             
             this.mortgage_remaining += this.day_int_charge;
+            if(this.mortgage_remaining <= 0)
+            {
+                break; // finish up, as the mortgage has been paid!
+            }
 
         }
         System.out.println("** Calculations were based on a monthly repayment of £" + month_repayment + " **");
         //System.out.println("== START OF MONTH SUMMARY ==");
         
-        System.out.println("== Mortgage Summary ==");
-        System.out.println(mortgage_summary);
-                
+        //this.mortgage_summary_sorted.putAll(mortgage_summary); 
+        //System.out.println("== Mortgage Summary ==");
+        //System.out.println(this.mortgage_summary);
+
+        //System.out.println("\n== Mortgage Summary Sorted ==");
+        //System.out.println(this.mortgage_summary_sorted);
+        System.out.println();
         System.out.println("== Final amount of days ==");
         System.out.println("Date " + date + " plus " + (int)dayCount + " days is "+date_add); 
         
@@ -100,9 +119,7 @@ public class Finance_apr
     
     private void showCommandLineSummary()
     {
-
-
-        this.mortgage_summary.forEach((key, value)->{
+        this.mortgage_summary_sorted.forEach((key, value)->{
             
             String[] value_items = value.split(" ");
             System.out.print("Date: " + key + " | ");
@@ -130,6 +147,7 @@ public class Finance_apr
     {
         System.out.println("++ Debug Method: Finance_apr::isDateToGreaterThanDateFrom. Start date: " 
                 + this.calendar_date_to.toString() + " | End date: " +  this.calendar_date_from.toString() );
+        //return true;
         return this.calendar_date_to.isAfter(this.calendar_date_from);
     }
 
@@ -181,7 +199,7 @@ public class Finance_apr
     
     private void setCalendarDateFrom(String date_from_string)
     {
-        this.calendar_date_from = LocalDate.parse(date_to);
+        this.calendar_date_from = LocalDate.parse(date_from_string);
     }
 
     private void setCalendarDateTo(String date_to_string)
