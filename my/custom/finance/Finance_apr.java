@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.time.*;
+import java.text.ParseException;
 
 
 
@@ -40,7 +41,8 @@ public class Finance_apr
     private LocalDate calendar_date_to;
     //private Calendar calendar_date_to;
     final static int DATE_PLUS_MONTHS = 6;
-    private HashMap<String, String> mortgage_summary = new HashMap<>();
+    //private HashMap<String, String> mortgage_summary = new HashMap<>();
+    private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
     private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
     
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
@@ -76,12 +78,12 @@ public class Finance_apr
                     this.mortgage_remaining = (this.mortgage_remaining - this.mortgage_remaining); // Possibly the final mortgage payment, so, finish up!
                     
                 }
-                
+                mortgage_summary_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
                 
                 //mortgage_summary.put(date_add_single.toString(), "Count: ");
             }
             
-            mortgage_summary_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
+            mortgage_all_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
 
             //System.out.println(i +") On date "+ date_add_single +" the mortgate remaining is " + String.format("%.2f",this.mortgage_remaining) + " and for apr: " + this.interest_rate + ", the daily interest charge is "+ String.format("%.2f",this.day_int_charge));
@@ -109,14 +111,35 @@ public class Finance_apr
         
     }
     
-    public void showSummary(boolean commandlinesummary)
+    public void showSelectedEntries(boolean commandlinesummary)
     {
         if(commandlinesummary == true)
         {
             this.showCommandLineSummary();
         }
+        else
+        {
+            this.showAllEntries();
+        }
     }
     
+    private void showAllEntries()
+    {
+        this.mortgage_all_sorted.forEach((key, value)->{
+            
+            String[] value_items = value.split(" ");
+            System.out.print("Date: " + key + " | ");
+            //System.out.print("Date: " + value_items[0] + " ");
+            System.out.print("Mortgage Remaining: " + value_items[0] + " | ");
+            System.out.print("Mortgage Rate: " + value_items[1] + " | ");
+            //System.out.print("Interest per day: " + value_items[2] + " | ");
+            System.out.println("Interest per day: " + value_items[2]);
+
+        });        
+    }
+    /**
+     * Show each entry for summary
+     */
     private void showCommandLineSummary()
     {
         this.mortgage_summary_sorted.forEach((key, value)->{
@@ -129,9 +152,30 @@ public class Finance_apr
             //System.out.print("Interest per day: " + value_items[2] + " | ");
             System.out.println("Interest per day: " + value_items[2]);
 
-        });
-                    
+        });                       
+    }
+    /**
+     * 
+     * @param date 
+     */
+    public void showIndividualDateRecord(String date)
+    {
+//        System.out.println("*** Debug Finance_apr::showIndividualDateRecord ***");
+//        System.out.println(this.mortgage_summary_sorted.get(date));
+//        System.out.println("*** Debug Finance_apr::showIndividualDateRecord ***");
         
+        //boolean key_set = this.mortgage_summary_sorted.keySet(date);
+        if(this.mortgage_all_sorted.containsKey(date))
+        {
+            String[] value_items = this.mortgage_all_sorted.get(date).split(" ");
+            System.out.print("Date: " + date + " | ");
+            //System.out.print("Date: " + value_items[0] + " ");
+            System.out.print("Mortgage Remaining: " + value_items[0] + " | ");
+            System.out.print("Mortgage Rate: " + value_items[1] + " | ");
+            //System.out.print("Interest per day: " + value_items[2] + " | ");
+            System.out.println("Interest per day: " + value_items[2]);            
+        }
+
     }
     // * Validation | START //
     
@@ -149,6 +193,39 @@ public class Finance_apr
                 + this.calendar_date_to.toString() + " | End date: " +  this.calendar_date_from.toString() );
         //return true;
         return this.calendar_date_to.isAfter(this.calendar_date_from);
+    }
+    
+    public boolean isDateEnteredValid(String command)
+    {
+	    SimpleDateFormat sdfrmt = new SimpleDateFormat("yyyy-MM-dd");
+	    sdfrmt.setLenient(false);
+	    /* Create Date object
+	     * parse the string into date 
+             */
+	    try
+	    {
+	        sdfrmt.parse(command);
+//                //String mortgage_rec = mortgage_all_sorted.get(command);
+//	        System.out.println("== Specific date requested " + command + " ==");
+//	        if(mortgage_all_sorted.containsKey(command))
+//                {
+//                    
+//                    this.showIndividualDateRecord(command);
+//                }
+//                else
+//                {
+//                    System.out.println("-- No data for the given date (Valid ranges: " 
+//                        + this.calendar_date_from.toString() + " - " + this.calendar_date_to.toString() + ")--");
+//                }
+	    }
+	    /* Date format is invalid */
+	    catch (ParseException e)
+	    {
+	        //System.out.println(command+" is Invalid Date format");
+	        return false;
+	    }
+	    /* Return true if date format is valid */
+	    return true;
     }
 
     // * Validation | END //
@@ -206,7 +283,9 @@ public class Finance_apr
     {
         this.calendar_date_to = LocalDate.parse(date_to_string);
     }
-    
+    /**
+     * @deprecated
+     */
     private void setDateRanges()
     {
         String date_set1[] = this.date_from.split("-");
