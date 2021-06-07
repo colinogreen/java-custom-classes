@@ -45,7 +45,10 @@ public class Finance_apr
     //private HashMap<String, String> mortgage_summary = new HashMap<>();
     final private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
+    final private TreeMap<String, String> mortgage_milestones = new TreeMap<>();
     final private MessageDisplayer msgs;
+    
+    private boolean milestone_int_less_one_per_day = false;
     
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
     public Finance_apr()
@@ -75,25 +78,35 @@ public class Finance_apr
         for(int i = 0; i <= (int)dayCount; i++)
         {
             date_add_single = date.plusDays(i);
+                       
             // If the loop is not at the very first item and it is the first day of the month, reduce the mortgage remaining by the mortgage amount.
             if(i != 0 && date_add_single.getDayOfMonth() == 1)
             {
                 if(mortgage_remaining > this.month_repayment)
                 {
                     this.mortgage_remaining -= this.month_repayment; // deduct monthly mortgage repayment if it is the 1st of a month and not the first run of the loop (which may take into account first day, anyway.
+                    
                 }
                 else
                 {
                     this.mortgage_remaining = (this.mortgage_remaining - this.mortgage_remaining); // Possibly the final mortgage payment, so, finish up!
                     
                 }
+                //** day_int_charge calc Moved here to see if it works better
+                this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
                 mortgage_summary_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
                 
                 //mortgage_summary.put(date_add_single.toString(), "Count: ");
             }
-            
-            mortgage_all_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
+            else
+            {
+                // Run day_int_charge calc only if not run on 1st day of months summary if statement.
+                this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
+            }
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
+            mortgage_all_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
+            this.checkMortMilestoneIntRateLessThanOnePerDay(date_add_single.toString()); // check that mortgage int day rate is below 1 or not.
+            //this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
 
             this.mortgage_remaining += this.day_int_charge;
             if(this.mortgage_remaining <= 0)
@@ -111,7 +124,48 @@ public class Finance_apr
         
     }
     
-    public void setSelectedEntries(boolean commandlinesummary)
+    private void checkMortMilestoneIntRateLessThanOnePerDay(String date)
+    {
+        Float int_charge = Float.valueOf(String.format("%.2f",this.day_int_charge));
+        if(this.milestone_int_less_one_per_day == false && (int_charge < 1))
+        {
+            this.addMortgageMilestone(date, "The daily interest rate would below 1 for the first time and would be " + int_charge);
+            this.milestone_int_less_one_per_day= true; // set true so that this is no longer activated.
+        }
+    }
+    
+    private void addMortgageMilestone(String date, String text)
+    {
+        this.mortgage_milestones.put(date, text);
+    }
+    
+    /**
+     * Method that supplies newline delimiter by default
+     * @return msgs.getMessageString() of milestones
+     */
+    public String getMortgageMilestonesList()
+    {
+        return this.getMortgageMilestonesList("\n");
+    }
+    
+    /**
+     * Supply delimiter of your choice
+     * @param delimiter
+     * @return msgs.getMessageString() of milestones
+     */
+    public String getMortgageMilestonesList(String delimiter)
+    {
+        msgs.resetMessageString();
+        this.mortgage_milestones.forEach((date, text)->{
+        
+            msgs.setMessageString(date + ": " + text, delimiter);
+            
+        });
+        
+        return msgs.getMessageString();
+    }
+    
+    public void setMortgageSelectedEntries(boolean commandlinesummary)
     {
         if(commandlinesummary == true)
         {
@@ -162,7 +216,7 @@ public class Finance_apr
      * 
      * @param date 
      */
-    public void setIndividualDateRecord(String date)
+    public void setMortgageIndividualDateRecord(String date)
     {
         if(this.mortgage_all_sorted.containsKey(date))
         {
@@ -382,12 +436,12 @@ public class Finance_apr
     }
     
     // START | Questions for prompts in Desktop program or Android app, etc.
-    public String promptForMonthlyRepayment()
+    public String promptForMonthlyMortgageRepayment()
     {
         return "Enter the monthly mortgage repayment: ";
     }
     
-    public String promptForMortgateRemaining()
+    public String promptForMortgageRemaining()
     {
         return "Enter the mortgage balance remaining: ";
     }
