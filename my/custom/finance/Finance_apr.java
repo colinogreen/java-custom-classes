@@ -12,8 +12,9 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.time.*;
 import java.text.ParseException;
+import java.time.format.DateTimeParseException;
 
-
+import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help display messages to console|GUI|Android app, etc.
 
 /**
  *
@@ -42,22 +43,30 @@ public class Finance_apr
     //private Calendar calendar_date_to;
     final static int DATE_PLUS_MONTHS = 6;
     //private HashMap<String, String> mortgage_summary = new HashMap<>();
-    private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
-    private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
+    final private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
+    final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
+    final private MessageDisplayer msgs;
     
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
     public Finance_apr()
     {
-       
+        this.msgs = new MessageDisplayer();
+    }
+    /**
+     * 
+     * @return 
+     */
+    public String getMessageString()
+    {
+        // Return messages to any app that needs them from external class.
+        return msgs.getMessageString();
     }
     
     public void processMortgateInterestCalculation()
     {
 
-        //this.setDateRanges();
-
         float dayCount = Duration.between(this.calendar_date_from.atStartOfDay(), this.calendar_date_to.atStartOfDay()).toDays();
-        System.out.println("** Calculations are based on a monthly repayment of £" + month_repayment + " **");
+        msgs.resetMessageString("** Calculations are based on a monthly repayment of £" + month_repayment + " **"); // clear any previous results and set string
 
         LocalDate date = this.calendar_date_from;
 
@@ -86,8 +95,6 @@ public class Finance_apr
             mortgage_all_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
 
-            //System.out.println(i +") On date "+ date_add_single +" the mortgate remaining is " + String.format("%.2f",this.mortgage_remaining) + " and for apr: " + this.interest_rate + ", the daily interest charge is "+ String.format("%.2f",this.day_int_charge));
-            
             this.mortgage_remaining += this.day_int_charge;
             if(this.mortgage_remaining <= 0)
             {
@@ -95,85 +102,79 @@ public class Finance_apr
             }
 
         }
-        System.out.println("** Calculations were based on a monthly repayment of £" + month_repayment + " **");
-        //System.out.println("== START OF MONTH SUMMARY ==");
-        
-        //this.mortgage_summary_sorted.putAll(mortgage_summary); 
-        //System.out.println("== Mortgage Summary ==");
-        //System.out.println(this.mortgage_summary);
+        msgs.setMessageString("** Calculations were based on a monthly repayment of £" + month_repayment + " **","\n");
 
-        //System.out.println("\n== Mortgage Summary Sorted ==");
-        //System.out.println(this.mortgage_summary_sorted);
-        System.out.println();
-        System.out.println("== Final amount of days ==");
-        System.out.println("Date " + date + " plus " + (int)dayCount + " days is "+date_add); 
+        //this.setMessageString("\n","\n");
+        msgs.setMessageString("== Final amount of days ==","\n");
+        msgs.setMessageString("Date " + date + " plus " + (int)dayCount + " days is "+date_add,"\n"); 
         
         
     }
     
-    public void showSelectedEntries(boolean commandlinesummary)
+    public void setSelectedEntries(boolean commandlinesummary)
     {
         if(commandlinesummary == true)
         {
-            this.showCommandLineSummary();
+            this.setMortgageDayFiguresSummary();
         }
         else
         {
-            this.showAllEntries();
+            this.setMortgageDayFiguresAllEntries();
         }
     }
     
-    private void showAllEntries()
+    private void setMortgageDayFiguresAllEntries()
+    //private void setAllEntries()
     {
+        msgs.resetMessageString(); // clear any previous results
         this.mortgage_all_sorted.forEach((key, value)->{
             
             String[] value_items = value.split(" ");
-            System.out.print("Date: " + key + " | ");
-            //System.out.print("Date: " + value_items[0] + " ");
-            System.out.print("Mortgage Remaining: " + value_items[0] + " | ");
-            System.out.print("Mortgage Rate: " + value_items[1] + " | ");
-            //System.out.print("Interest per day: " + value_items[2] + " | ");
-            System.out.println("Interest per day: " + value_items[2]);
+            this.setMortgageDayFiguresLine(key, value_items);
 
         });        
     }
     /**
      * Show each entry for summary
      */
-    private void showCommandLineSummary()
+    private void setMortgageDayFiguresSummary()
+    //private void setCommandLineSummary()
     {
+        msgs.resetMessageString(); // clear any previous results
         this.mortgage_summary_sorted.forEach((key, value)->{
             
             String[] value_items = value.split(" ");
-            System.out.print("Date: " + key + " | ");
-            //System.out.print("Date: " + value_items[0] + " ");
-            System.out.print("Mortgage Remaining: " + value_items[0] + " | ");
-            System.out.print("Mortgage Rate: " + value_items[1] + " | ");
-            //System.out.print("Interest per day: " + value_items[2] + " | ");
-            System.out.println("Interest per day: " + value_items[2]);
+            this.setMortgageDayFiguresLine(key, value_items);
 
         });                       
+    }
+    
+    private void setMortgageDayFiguresLine(String key,String[] value_items)
+    {
+        msgs.setMessageString("Date: " + key);  // Start creating output
+        //System.out.print("Date: " + value_items[0] + " ");
+        msgs.setMessageString("Mortgage Remaining: " + value_items[0]," ");
+        msgs.setMessageString("Mortgage Rate: " + value_items[1]," ");
+        //this.setMessageString("Interest per day: " + value_items[2] + " | ");
+        msgs.setMessageString("Interest per day: " + value_items[2]," ");        
     }
     /**
      * 
      * @param date 
      */
-    public void showIndividualDateRecord(String date)
+    public void setIndividualDateRecord(String date)
     {
-//        System.out.println("*** Debug Finance_apr::showIndividualDateRecord ***");
-//        System.out.println(this.mortgage_summary_sorted.get(date));
-//        System.out.println("*** Debug Finance_apr::showIndividualDateRecord ***");
-        
-        //boolean key_set = this.mortgage_summary_sorted.keySet(date);
         if(this.mortgage_all_sorted.containsKey(date))
         {
             String[] value_items = this.mortgage_all_sorted.get(date).split(" ");
-            System.out.print("Date: " + date + " | ");
-            //System.out.print("Date: " + value_items[0] + " ");
-            System.out.print("Mortgage Remaining: " + value_items[0] + " | ");
-            System.out.print("Mortgage Rate: " + value_items[1] + " | ");
-            //System.out.print("Interest per day: " + value_items[2] + " | ");
-            System.out.println("Interest per day: " + value_items[2]);            
+            msgs.resetMessageString(); // clear any previous results
+            this.setMortgageDayFiguresLine(date, value_items);
+        }
+        else
+        {
+            msgs.resetMessageString("Could not find a record for the date, " + date + "."); // clear any previous results
+            msgs.setMessageString("The date must be between " + this.getDateToCalculateFrom(), " "); // clear any previous results
+            msgs.setMessageString("and " + this.getDateToCalculateTo(), " "); // clear any previous results
         }
 
     }
@@ -189,8 +190,8 @@ public class Finance_apr
      */
     public boolean isDateToGreaterThanDateFrom()
     {
-        System.out.println("++ Debug Method: Finance_apr::isDateToGreaterThanDateFrom. Start date: " 
-                + this.calendar_date_to.toString() + " | End date: " +  this.calendar_date_from.toString() );
+        msgs.resetMessageString("++ Debug Method: Finance_apr::isDateToGreaterThanDateFrom. Start date: " 
+                + this.calendar_date_to.toString() + " | End date: " +  this.calendar_date_from.toString() ); // clear any previous results and set string
         //return true;
         return this.calendar_date_to.isAfter(this.calendar_date_from);
     }
@@ -205,18 +206,6 @@ public class Finance_apr
 	    try
 	    {
 	        sdfrmt.parse(command);
-//                //String mortgage_rec = mortgage_all_sorted.get(command);
-//	        System.out.println("== Specific date requested " + command + " ==");
-//	        if(mortgage_all_sorted.containsKey(command))
-//                {
-//                    
-//                    this.showIndividualDateRecord(command);
-//                }
-//                else
-//                {
-//                    System.out.println("-- No data for the given date (Valid ranges: " 
-//                        + this.calendar_date_from.toString() + " - " + this.calendar_date_to.toString() + ")--");
-//                }
 	    }
 	    /* Date format is invalid */
 	    catch (ParseException e)
@@ -262,26 +251,44 @@ public class Finance_apr
         return this.date_to;
     }
     
-    public void setCalendarDate(String start_or_end_date, boolean start_date)
+    public boolean setCalendarDate(String start_or_end_date, boolean start_date)
     {
         if(start_date == true)
         {
-            this.setCalendarDateFrom(start_or_end_date);
+            return this.setCalendarDateFrom(start_or_end_date);
         }
         else
         {
-            this.setCalendarDateTo(start_or_end_date);
+            return this.setCalendarDateTo(start_or_end_date);
         }
     }
     
-    private void setCalendarDateFrom(String date_from_string)
+    private boolean setCalendarDateFrom(String date_from_string)
     {
-        this.calendar_date_from = LocalDate.parse(date_from_string);
+        try
+        {
+            this.calendar_date_from = LocalDate.parse(date_from_string);
+            return true;
+        }
+        catch(DateTimeParseException e)
+        {
+            return false;
+        }
+        
     }
 
-    private void setCalendarDateTo(String date_to_string)
+    private boolean setCalendarDateTo(String date_to_string)
     {
-        this.calendar_date_to = LocalDate.parse(date_to_string);
+        try
+        {
+            this.calendar_date_to = LocalDate.parse(date_to_string);
+            return true;
+        }
+        catch(DateTimeParseException e)
+        {
+            return false;
+        }
+        
     }
     /**
      * @deprecated
@@ -297,7 +304,7 @@ public class Finance_apr
         else
         {
             this.setDefaultDateFrom();
-            System.out.println("Note: default start date to: " + this.calendar_date_from.toString());
+            msgs.resetMessageString("Note: default start date to: " + this.calendar_date_from.toString());  // clear any previous results and set string
         }
 
         String date_set2[] = this.date_to.split("-");
@@ -312,7 +319,7 @@ public class Finance_apr
         else
         {
             this.setDefaultDateTo();
-            System.out.println("Note: Setting default end date to: " + this.calendar_date_to.toString());
+            msgs.resetMessageString("Note: Setting default end date to: " + this.calendar_date_to.toString()); // clear any previous results and set string
         }
     }
     
@@ -324,7 +331,7 @@ public class Finance_apr
     {
         if(this.calendar_date_to == null)
         {
-           System.out.println("** DEBUG: calendar_date_to WAS NULL **\n");
+           msgs.resetMessageString("** DEBUG: calendar_date_to WAS NULL **\n");  // clear any previous results and set string
            this.calendar_date_to = LocalDate.now().plusMonths(DATE_PLUS_MONTHS);
         }
         
