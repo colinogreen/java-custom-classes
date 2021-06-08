@@ -129,7 +129,7 @@ public class Finance_apr
         Float int_charge = Float.valueOf(String.format("%.2f",this.day_int_charge));
         if(this.milestone_int_less_one_per_day == false && (int_charge < 1))
         {
-            this.addMortgageMilestone(date, "The daily interest rate would below 1 for the first time and would be " + int_charge);
+            this.addMortgageMilestone(date, "The daily interest rate would go below 1 for the first time and would be " + int_charge + ".");
             this.milestone_int_less_one_per_day= true; // set true so that this is no longer activated.
         }
     }
@@ -227,8 +227,8 @@ public class Finance_apr
         else
         {
             msgs.resetMessageString("Could not find a record for the date, " + date + "."); // clear any previous results
-            msgs.setMessageString("The date must be between " + this.getDateToCalculateFrom(), " "); // clear any previous results
-            msgs.setMessageString("and " + this.getDateToCalculateTo(), " "); // clear any previous results
+            msgs.setMessageString("The date must be between " + this.getDefaultDateFrom(), " "); // clear any previous results
+            msgs.setMessageString("and " + this.getDefaultDateTo(), " "); // clear any previous results
         }
 
     }
@@ -284,26 +284,26 @@ public class Finance_apr
     }
 
             
-    public void setDateToCalculateFrom(String df)
-    {
-        this.date_from = df;
-    }
-    
-    public String getDateToCalculateFrom()
-    {
-        return this.date_from;
-    }
-            
-            
-    public void setDateToCalculateTo(String dt)
-    {
-        this.date_to = dt;
-    }
-    
-    public String getDateToCalculateTo()
-    {
-        return this.date_to;
-    }
+//    public void setDateToCalculateFrom(String df)
+//    {
+//        this.date_from = df;
+//    }
+//    
+//    public String getDateToCalculateFrom()
+//    {
+//        return this.date_from;
+//    }
+//            
+//            
+//    public void setDateToCalculateTo(String dt)
+//    {
+//        this.date_to = dt;
+//    }
+//    
+//    public String getDateToCalculateTo()
+//    {
+//        return this.date_to;
+//    }
     
     public boolean setCalendarDate(String start_or_end_date, boolean start_date)
     {
