@@ -46,6 +46,7 @@ public class Finance_apr
     final private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_milestones = new TreeMap<>();
+    final private ArrayList<String> error_list = new ArrayList<>();
     final private MessageDisplayer msgs;
     
     private boolean milestone_int_less_one_per_day = false;
@@ -233,11 +234,16 @@ public class Finance_apr
 
     }
     // * Validation | START //
-    
-    public boolean checkIfNumberIsADouble(String number)
+    /**
+     * Check if a number entered in the console, GUI field, command line parameter, etc is a number
+     * @param number
+     * @return 
+     */
+    public boolean checkIfInputNumberIsADouble(String number)
     {
         return Pattern.matches(DOUBLE_PATTERN, number);
     }
+    
     /**
      * 
      * @return true or false
@@ -269,6 +275,36 @@ public class Finance_apr
 	    }
 	    /* Return true if date format is valid */
 	    return true;
+    }
+    /**
+     * 
+     * @param number_string
+     * @param parameter_name
+     * @return 
+     */
+    public boolean vaidateNumberAsDouble(String number_string, String parameter_name)
+    {
+        if(!this.checkIfInputNumberIsADouble(number_string))
+        {
+            this.setErrorListItem("The number entered is not valid", parameter_name);
+            return false;
+        }
+        return true;
+    }
+    
+    private void setErrorListItem(String error_message, String control_name)
+    {
+        this.error_list.add(control_name +": " + error_message);
+    }
+    
+    public int getErrorListCount()
+    {
+        return this.error_list.size();
+    }
+    
+    public Object[] getErrorListItems()
+    {
+        return this.error_list.toArray();
     }
 
     // * Validation | END //
