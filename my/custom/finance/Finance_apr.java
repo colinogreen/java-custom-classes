@@ -70,6 +70,18 @@ public class Finance_apr
         return msgs.getMessageString();
     }
     
+    public String getMortgageInputSummary()
+    {
+        String msg = "----------------------------------------------------------------\n";
+        msg += "Note: These calculations are based on a the following figures:\n";
+        msg += "Initial Mortgage payment remaining: " + this.getMortgageRemainingInitial() + "\n";
+        msg += "Repayment amount: " + this.getMonthRepayment() + "\n";
+        msg += "Mortgage interest rate: " + this.getInterestRate() + "\n";
+        msg += "Date range: " + this.getCalendarDateFrom() + " - " + getCalendarDateTo() +"\n";
+        msg += "----------------------------------------------------------------\n";
+        
+        return msg;
+    }
     public void processMortgateInterestCalculation()
     {
 
@@ -100,31 +112,31 @@ public class Finance_apr
                 //** day_int_charge calc Moved here to see if it works better
                 this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
                 mortgage_summary_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
-                this.checkMortMilestoneIntRateLessThanOnePerDay(date_add_single.toString()); // check that mortgage int day rate is below 1 or not.
-                this.checkMortMilestonePercentAmountPaid(date_add_single.toString());
                 
-                //mortgage_summary.put(date_add_single.toString(), "Count: ");
+                 // check that mortgage int day rate is below 1 or not and make a note for the milestones report
+                this.checkMortMilestoneIntRateLessThanOnePerDay(date_add_single.toString());
+                 // Check whether a certain percentage of the entered mortgage total has been paid back and make a note for milestones
+                this.checkMortMilestonePercentAmountPaid(date_add_single.toString());
+
             }
             else
             {
-                // Run day_int_charge calc only if not run on 1st day of months summary if statement.
+                // Run day_int_charge calc only if not run on the 'first day of month' section.
                 this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
             }
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
             mortgage_all_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
-
-            //this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
-
-            this.mortgage_remaining += this.day_int_charge;
+           
             if(this.mortgage_remaining <= 0)
             {
                 break; // finish up, as the mortgage has been paid!
             }
+            
+            this.mortgage_remaining += this.day_int_charge;
 
         }
         msgs.setMessageString("** Calculations were based on a monthly repayment of £" + month_repayment + " **","\n");
 
-        //this.setMessageString("\n","\n");
         msgs.setMessageString("== Final amount of days ==","\n");
         msgs.setMessageString("Date " + date + " plus " + (int)dayCount + " days is "+date_add,"\n"); 
         
@@ -153,8 +165,7 @@ public class Finance_apr
             {
                 Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining));
                 this.addMortgageMilestone(date, "The mortgage remaining is now at least 25 percent less than the initial amount (" + mort_remain + ")");
-                this.milestone_25percent_amount_paid = true;
-                //(percent ==25)?this.milestone_25percent_amount_paid = true:this.milestone_50percent_amount_paid;                
+                this.milestone_25percent_amount_paid = true;               
             }
 
         }
@@ -169,7 +180,6 @@ public class Finance_apr
                 this.milestone_50percent_amount_paid = true;                
             }            
 
-            //(percent ==25)?this.milestone_25percent_amount_paid = true:this.milestone_50percent_amount_paid;
         }
         
         else if(this.milestone_75percent_amount_paid == false )
@@ -255,7 +265,28 @@ public class Finance_apr
             this.setMortgageDayFiguresAllEntries();
         }
     }
-    
+    public void getMortgageDayFiguresRangeFromTo(String date_from, String date_to)
+    {
+        msgs.resetMessageString(); // clear any previous results
+        //this.mortgage_all_sorted.entrySet(date_from, date_to).;
+        if(!this.mortgage_all_sorted.containsKey(date_from) || !this.mortgage_all_sorted.containsKey(date_to))
+        {
+            // First make sure any extremely dodgy long input is truncated....
+            String date_from_to_string = date_from.substring(0, Math.min(11, date_from.length())) 
+                    + " " + date_to.substring(0, Math.min(11, date_to.length()));
+            //String date_to_string = date_from.substring(0, Math.min(11, date_to.length()));
+            msgs.setMessageString("The range entered (" + date_from_to_string + ") was invalid, or dates do not exist in this run: (correct format: yyyy-mm-dd yyyy-mm-dd)\n");
+        }
+        else
+        {
+            this.mortgage_all_sorted.subMap(date_from, date_to).forEach((key, value)->{
+                String[] value_items = value.split(" ");
+                this.setMortgageDayFiguresLine(key, value_items);            
+            });            
+        }
+
+               
+    }
     private void setMortgageDayFiguresAllEntries()
     //private void setAllEntries()
     {
@@ -306,8 +337,8 @@ public class Finance_apr
         else
         {
             msgs.resetMessageString("Could not find a record for the date, " + date + "."); // clear any previous results
-            msgs.setMessageString("The date must be between " + this.getDefaultDateFrom(), " "); // clear any previous results
-            msgs.setMessageString("and " + this.getDefaultDateTo(), " "); // clear any previous results
+            msgs.setMessageString("The date must be between " + this.getCalendarDateFrom(), " "); // clear any previous results
+            msgs.setMessageString("and " + this.getCalendarDateTo(), " "); // clear any previous results
         }
 
     }
@@ -514,11 +545,17 @@ public class Finance_apr
             msgs.resetMessageString("Note: Setting default end date to: " + this.calendar_date_to.toString()); // clear any previous results and set string
         }
     }
-    
+    /**
+     * A public alias of setCalendarDateFrom method for command line app when date is not entered
+     */
     public void setDefaultDateFrom()
     {
         this.calendar_date_from = LocalDate.now();
     }
+    
+    /**
+     * A public alias of setCalendarDateTo for command line app when date is not entered
+     */
     public void setDefaultDateTo()
     {
         if(this.calendar_date_to == null)
@@ -529,13 +566,13 @@ public class Finance_apr
         
     }
     
-    public String getDefaultDateFrom()
+    public String getCalendarDateFrom()
     {
         return this.calendar_date_from.toString();
     }
     
     
-    public String getDefaultDateTo()
+    public String getCalendarDateTo()
     {
         return this.calendar_date_to.toString();
     }
@@ -628,7 +665,10 @@ public class Finance_apr
     {
         return this.mortgage_remaining;
     }
-    
+    private double getMortgageRemainingInitial()
+    {
+        return this.mortgage_remaining_initial;
+    }    
     /**
      * Used in original pre-2021 mortgage-calculator
      * @param interest_rate 
