@@ -22,6 +22,7 @@ import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help di
  */
 public class Finance_apr 
 {  
+    private double mortgage_remaining_initial;
     private double mortgage_remaining;
     private double interest_rate;
     
@@ -46,10 +47,13 @@ public class Finance_apr
     final private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_milestones = new TreeMap<>();
-    final private ArrayList<String> error_list = new ArrayList<>();
+    final private HashMap<String, String> error_list = new HashMap<>();
     final private MessageDisplayer msgs;
     
     private boolean milestone_int_less_one_per_day = false;
+    private boolean milestone_25percent_amount_paid = false;
+    private boolean milestone_50percent_amount_paid = false;
+    private boolean milestone_75percent_amount_paid = false;
     
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
     public Finance_apr()
@@ -71,7 +75,7 @@ public class Finance_apr
 
         float dayCount = Duration.between(this.calendar_date_from.atStartOfDay(), this.calendar_date_to.atStartOfDay()).toDays();
         msgs.resetMessageString("** Calculations are based on a monthly repayment of £" + month_repayment + " **"); // clear any previous results and set string
-
+        this.mortgage_remaining_initial = this.mortgage_remaining;
         LocalDate date = this.calendar_date_from;
 
         LocalDate date_add = date.plusDays((int)dayCount);
@@ -96,6 +100,8 @@ public class Finance_apr
                 //** day_int_charge calc Moved here to see if it works better
                 this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
                 mortgage_summary_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
+                this.checkMortMilestoneIntRateLessThanOnePerDay(date_add_single.toString()); // check that mortgage int day rate is below 1 or not.
+                this.checkMortMilestonePercentAmountPaid(date_add_single.toString());
                 
                 //mortgage_summary.put(date_add_single.toString(), "Count: ");
             }
@@ -106,7 +112,7 @@ public class Finance_apr
             }
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
             mortgage_all_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
-            this.checkMortMilestoneIntRateLessThanOnePerDay(date_add_single.toString()); // check that mortgage int day rate is below 1 or not.
+
             //this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
 
             this.mortgage_remaining += this.day_int_charge;
@@ -130,14 +136,86 @@ public class Finance_apr
         Float int_charge = Float.valueOf(String.format("%.2f",this.day_int_charge));
         if(this.milestone_int_less_one_per_day == false && (int_charge < 1))
         {
-            this.addMortgageMilestone(date, "The daily interest rate would go below 1 for the first time and would be " + int_charge + ".");
+            this.addMortgageMilestone(date, "The daily interest rate would go below 1 for the first time and would be " + int_charge
+                    + " (with " + Float.valueOf(String.format("%.2f",this.mortgage_remaining)) + " remaining on the mortgage total supplied).");
             this.milestone_int_less_one_per_day= true; // set true so that this is no longer activated.
         }
     }
     
+    private void checkMortMilestonePercentAmountPaid(String date)
+    {
+
+        if(this.milestone_25percent_amount_paid == false )
+        {
+            
+            double mortgage_percent_less_paid = this.mortgage_remaining_initial - (this.mortgage_remaining_initial * 25 / 100 );
+            if( this.mortgage_remaining < mortgage_percent_less_paid)
+            {
+                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining));
+                this.addMortgageMilestone(date, "The mortgage remaining is now at least 25 percent less than the initial amount (" + mort_remain + ")");
+                this.milestone_25percent_amount_paid = true;
+                //(percent ==25)?this.milestone_25percent_amount_paid = true:this.milestone_50percent_amount_paid;                
+            }
+
+        }
+        
+        else if(this.milestone_50percent_amount_paid == false )
+        {
+            double mortgage_percent_less_paid = this.mortgage_remaining_initial - (this.mortgage_remaining_initial * 50 / 100 );
+            if( this.mortgage_remaining < mortgage_percent_less_paid)
+            {
+                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining));
+                this.addMortgageMilestone(date, "The mortgage figure remaining is now at least 50 percent less than the initial amount (" + mort_remain + ")");
+                this.milestone_50percent_amount_paid = true;                
+            }            
+
+            //(percent ==25)?this.milestone_25percent_amount_paid = true:this.milestone_50percent_amount_paid;
+        }
+        
+        else if(this.milestone_75percent_amount_paid == false )
+        {
+            double mortgage_percent_less_paid = this.mortgage_remaining_initial - (this.mortgage_remaining_initial * 75 / 100 );
+            if( this.mortgage_remaining < mortgage_percent_less_paid)
+            {
+                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining));
+                this.addMortgageMilestone(date, "The mortgage amount remaining is now at least 75 percent less than the initial amount (" + mort_remain + ")");
+                this.milestone_75percent_amount_paid = true;                
+            }            
+
+            //(percent ==25)?this.milestone_25percent_amount_paid = true:this.milestone_50percent_amount_paid;
+        }
+        // milestone_25percent_amount_paid // this.mortgage_remaining_initial this.mortgage_remaining
+    }
+    /**
+     * Overload with default newline delimiter
+     * @param date
+     * @param text 
+     */
     private void addMortgageMilestone(String date, String text)
     {
-        this.mortgage_milestones.put(date, text);
+        
+        this.addMortgageMilestone(date, text, "\n");
+        
+    }
+    /**
+     * 
+     * @param date
+     * @param text
+     * @param delimiter 
+     */
+    private void addMortgageMilestone(String date, String text, String delimiter)
+    {
+        
+        if(!this.mortgage_milestones.containsKey(date))
+        {
+            this.mortgage_milestones.put(date, text);
+        }
+        else
+        {
+            String orig_text = this.mortgage_milestones.get(date);
+            this.mortgage_milestones.put(date, orig_text + delimiter + text);
+        }
+        
     }
     
     /**
@@ -280,21 +358,37 @@ public class Finance_apr
      * 
      * @param number_string
      * @param parameter_name
+     * @param message
      * @return 
      */
-    public boolean vaidateNumberAsDouble(String number_string, String parameter_name)
+    public boolean validateNumberAsDouble(String parameter_name, String number_string, String message)
     {
         if(!this.checkIfInputNumberIsADouble(number_string))
         {
-            this.setErrorListItem("The number entered is not valid", parameter_name);
+            this.setErrorListItem(parameter_name, message);
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 
+     * @param number_string
+     * @param parameter_name
+     * @return 
+     */
+    public boolean validateNumberAsDouble(String parameter_name, String number_string )
+    {
+        if(!this.checkIfInputNumberIsADouble(number_string))
+        {
+            this.setErrorListItem(parameter_name, "The number entered is not valid");
             return false;
         }
         return true;
     }
     
-    private void setErrorListItem(String error_message, String control_name)
+    private void setErrorListItem(String control_name, String error_message)
     {
-        this.error_list.add(control_name +": " + error_message);
+        this.error_list.put(control_name ,error_message);
     }
     
     public int getErrorListCount()
@@ -302,11 +396,19 @@ public class Finance_apr
         return this.error_list.size();
     }
     
-    public Object[] getErrorListItems()
+    public HashMap getErrorListItems()
     {
-        return this.error_list.toArray();
+        return this.error_list;
     }
-
+    
+    public Object[] getErrorListKeysArray()
+    {
+        return this.error_list.keySet().toArray();
+    }
+    public Object[] getErrorListValuesArray()
+    {
+        return this.error_list.values().toArray();
+    }
     // * Validation | END //
             
     public void setMonthRepayment(double amount)
