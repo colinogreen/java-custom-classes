@@ -29,6 +29,10 @@ public class Finance_apr
     //* For validation
     final static String DOUBLE_PATTERN = "[0-9]+(\\.){0,1}[0-9]*";
     final static String INTEGER_PATTERN = "\\d+";
+    final public double MAX_MORTGAGE_INT_RATE = 18.0; // Based on highest UK base rate ever: 17%
+    final public int MAX_MORTGAGE_TERM = 40; // Recent UK max
+    final public int MAX_MORTGAGE_LOAN= 500000; // Recent UK max loan: around 411,000
+    final public int MAX_MONTHLY_REPAYMENT = 3000; // Hope should never go higher than that
     
     double day_interest_rate;
     //double day_interest_charge;
@@ -230,6 +234,11 @@ public class Finance_apr
         
     }
     
+    public int getMortgageMilestonesCount()
+    {
+        return this.mortgage_milestones.size();
+    }
+    
     /**
      * Method that supplies newline delimiter by default
      * @return msgs.getMessageString() of milestones
@@ -247,13 +256,19 @@ public class Finance_apr
     public String getMortgageMilestonesList(String delimiter)
     {
         msgs.resetMessageString();
-        this.mortgage_milestones.forEach((date, text)->{
+        if(!mortgage_milestones.isEmpty())
+        {
+            this.mortgage_milestones.forEach((date, text)->{
+
+                msgs.setMessageString(date + ": " + text, delimiter);
+
+            });
+
+            return msgs.getMessageString();            
+        }
         
-            msgs.setMessageString(date + ": " + text, delimiter);
-            
-        });
-        
-        return msgs.getMessageString();
+        return "Note: There are no mortgage milestones record." + delimiter;
+
     }
     
     public void setMortgageSelectedEntries(boolean commandlinesummary)
@@ -378,6 +393,40 @@ public class Finance_apr
     public boolean checkIfInputNumberIsADouble(String number)
     {
         return Pattern.matches(DOUBLE_PATTERN, number);
+    }
+    /**
+     * 
+     * @param console_input
+     * @param label
+     * @param max_num
+     * @param message
+     * @return 
+     */
+    public boolean checkIfEnteredNumberTooLarge(String console_input, String label, int max_num, String message)
+    {
+        boolean too_large = Double.valueOf(console_input) > max_num;
+        if(too_large)
+        {
+            this.setErrorListItem(label, message);
+        }
+        return too_large;
+    }
+    /**
+     * 
+     * @param console_input
+     * @param label
+     * @param max_num
+     * @param message
+     * @return 
+     */
+    public boolean checkIfEnteredNumberTooLarge(String console_input, String label, double max_num, String message)
+    {
+        boolean too_large = Double.valueOf(console_input) > max_num;
+        if(too_large)
+        {
+            this.setErrorListItem(label, message);
+        }
+        return too_large;
     }
     
     private boolean isDateFromGreaterThanDateTo()
