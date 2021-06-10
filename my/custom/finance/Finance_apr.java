@@ -48,6 +48,8 @@ public class Finance_apr
     final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_milestones = new TreeMap<>();
     final private HashMap<String, String> error_list = new HashMap<>();
+    
+    private String error_list_messages;
     final private MessageDisplayer msgs;
     
     private boolean milestone_int_less_one_per_day = false;
@@ -269,15 +271,37 @@ public class Finance_apr
     {
         msgs.resetMessageString(); // clear any previous results
         //this.mortgage_all_sorted.entrySet(date_from, date_to).;
-        if(!this.mortgage_all_sorted.containsKey(date_from) || !this.mortgage_all_sorted.containsKey(date_to))
+        boolean process_method = true;
+        this.resetErrorList();
+        if(!this.isDateEnteredValid(date_from))
+        {
+            //this.msgs.setMessageString("The date from (" + date_from + ") is invalid. Use format: yyyy-mm-dd");
+            this.setErrorListItem("date_from", "The date from (" + date_from + ") is invalid. Use format: yyyy-mm-dd");
+            process_method = false;
+        }
+        
+        if(!this.isDateEnteredValid(date_to))
+        {
+            this.setErrorListItem("date_to", "The date to (" + date_to + ") is invalid. Use format: yyyy-mm-dd"); 
+            process_method = false;
+        }
+        
+        if (process_method == true && LocalDate.parse(date_from).isAfter(LocalDate.parse(date_to)))
+        {
+            this.setErrorListItem("date_from_greater_than_date_to", "The supplied date_from (" + date_from + ") is after the date to (" + date_to + ")"); 
+            process_method = false;            
+        }
+        
+        if(process_method == true && (!this.mortgage_all_sorted.containsKey(date_from) || !this.mortgage_all_sorted.containsKey(date_to)))
         {
             // First make sure any extremely dodgy long input is truncated....
             String date_from_to_string = date_from.substring(0, Math.min(11, date_from.length())) 
                     + " " + date_to.substring(0, Math.min(11, date_to.length()));
-            //String date_to_string = date_from.substring(0, Math.min(11, date_to.length()));
-            msgs.setMessageString("The range entered (" + date_from_to_string + ") was invalid, or dates do not exist in this run: (correct format: yyyy-mm-dd yyyy-mm-dd)\n");
+
+            this.setErrorListItem("date_from_or_to_not_exist","The range entered (" + date_from_to_string + ") was invalid, or dates do not exist in this run: (format: -r yyyy-mm-dd yyyy-mm-dd)\n");
+            //msgs.setMessageString("The range entered (" + date_from_to_string + ") was invalid, or dates do not exist in this run: (correct format: yyyy-mm-dd yyyy-mm-dd)\n");
         }
-        else
+        else if(process_method == true)
         {
             this.mortgage_all_sorted.subMap(date_from, date_to).forEach((key, value)->{
                 String[] value_items = value.split(" ");
@@ -328,17 +352,20 @@ public class Finance_apr
      */
     public void setMortgageIndividualDateRecord(String date)
     {
+        msgs.resetMessageString(); // clear any previous results
         if(this.mortgage_all_sorted.containsKey(date))
         {
             String[] value_items = this.mortgage_all_sorted.get(date).split(" ");
-            msgs.resetMessageString(); // clear any previous results
+            
             this.setMortgageDayFiguresLine(date, value_items);
         }
         else
         {
-            msgs.resetMessageString("Could not find a record for the date, " + date + "."); // clear any previous results
-            msgs.setMessageString("The date must be between " + this.getCalendarDateFrom(), " "); // clear any previous results
-            msgs.setMessageString("and " + this.getCalendarDateTo(), " "); // clear any previous results
+            String err = "Could not find a record for the date, " + date + "."; 
+            err += "The date must be between " + this.getCalendarDateFrom() ;
+            err += " and " + this.getCalendarDateTo(); 
+            this.setErrorListItem(date, err);
+            //this.setErrorListItem(date, err, true); // reset error list first with the true parameter
         }
 
     }
@@ -351,6 +378,20 @@ public class Finance_apr
     public boolean checkIfInputNumberIsADouble(String number)
     {
         return Pattern.matches(DOUBLE_PATTERN, number);
+    }
+    
+    private boolean isDateFromGreaterThanDateTo()
+    {
+        boolean isdatefromgreaterthandateto = this.calendar_date_from.isAfter(this.calendar_date_to);
+        
+        if(isdatefromgreaterthandateto)
+        {
+            msgs.resetMessageString("Date from (" 
+                + this.calendar_date_from.toString() + ") appears to be greater than Date to (" +  this.calendar_date_to.toString() + ")" ); // clear any previous results and set string            
+        }
+
+        //return true;
+        return isdatefromgreaterthandateto;
     }
     
     /**
@@ -416,12 +457,29 @@ public class Finance_apr
         }
         return true;
     }
-    
+    /**
+     * This overload works without attempting to reset the items in the error_list property.
+     * @param control_name
+     * @param error_message 
+     */
     private void setErrorListItem(String control_name, String error_message)
     {
-        this.error_list.put(control_name ,error_message);
+        this.setErrorListItem(control_name ,error_message, false);
     }
-    
+    /**
+     * Overload version with the ability to reset the error list, if necessary.
+     * @param control_name
+     * @param error_message
+     * @param reset_error_list 
+     */
+    private void setErrorListItem(String control_name, String error_message, boolean reset_error_list)
+    {
+        if(reset_error_list)
+        {
+            this.resetErrorList();
+        }
+        this.error_list.put(control_name ,error_message);
+    }    
     public int getErrorListCount()
     {
         return this.error_list.size();
@@ -430,6 +488,41 @@ public class Finance_apr
     public HashMap getErrorListItems()
     {
         return this.error_list;
+    }
+    
+    /**
+     * Get error messages as a string delimited by new line and reset error list property before returning.
+     * @return 
+     */
+    public String getErrorListMessages()
+    {
+        return this.getErrorListMessages("\n", true);
+    }    
+    /**
+     * Get error messages as a string with the supplied delimiter.
+     * @param delimiter
+     * @param reset_error_list
+     * @return 
+     */
+    public String getErrorListMessages(String delimiter, boolean reset_error_list)
+    {
+        this.error_list_messages = "";
+        this.error_list.forEach((label,message)->
+        {
+           this.error_list_messages += message + delimiter;
+        });
+        String return_messages = this.error_list_messages;
+        if(reset_error_list)
+        {
+            this.resetErrorList(); // Potentially causes problems if this is not done when re-running operation.
+        }
+        
+        return return_messages;
+    }    
+    private void resetErrorList()
+    {
+        this.error_list.clear();
+        //System.out.println("++ DEBUG ++:\nerror_list_clear_results:" + this.error_list.toString() + "\n+++");
     }
     
     public Object[] getErrorListKeysArray()
