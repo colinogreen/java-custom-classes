@@ -395,38 +395,55 @@ public class Finance_apr
         return Pattern.matches(DOUBLE_PATTERN, number);
     }
     /**
-     * 
+     * Int version overload
      * @param console_input
-     * @param label
      * @param max_num
-     * @param message
+     * @param field_name
+     * @param field_label
      * @return 
      */
-    public boolean checkIfEnteredNumberTooLarge(String console_input, String label, int max_num, String message)
+    public boolean checkIfInputNumberTooLarge(String console_input, int max_num, String field_name, String field_label)
     {
         boolean too_large = Double.valueOf(console_input) > max_num;
         if(too_large)
         {
-            this.setErrorListItem(label, message);
+            this.setErrorListItem(field_name, "The value entered for '" +field_label+ "' is too large");
+        }
+        return too_large;
+    }
+    /**
+     * double number version overload
+     * @param console_input
+     * @param max_num
+     * @param field_name
+     * @param field_label
+     * @return 
+     */
+    public boolean checkIfInputNumberTooLarge(String console_input, double max_num, String field_name, String field_label)
+    {
+        boolean too_large = Double.valueOf(console_input) > max_num;
+        if(too_large)
+        {
+            this.setErrorListItem(field_name, " * The value entered for '" + field_label + "' is too large: (Maximum: " + max_num + ").");
         }
         return too_large;
     }
     /**
      * 
      * @param console_input
-     * @param label
-     * @param max_num
-     * @param message
+     * @param min_num
+     * @param field_name
+     * @param field_label
      * @return 
      */
-    public boolean checkIfEnteredNumberTooLarge(String console_input, String label, double max_num, String message)
+    public boolean checkIfInputNumberTooSmall(String console_input, double min_num, String field_name, String field_label)
     {
-        boolean too_large = Double.valueOf(console_input) > max_num;
-        if(too_large)
+        boolean too_small = Double.valueOf(console_input) < min_num;
+        if(too_small)
         {
-            this.setErrorListItem(label, message);
+            this.setErrorListItem(field_name, " * The value entered for '" + field_label + "' is too small (minimum: " + min_num + ").");
         }
-        return too_large;
+        return too_small;
     }
     
     private boolean isDateFromGreaterThanDateTo()
