@@ -446,6 +446,17 @@ public class Finance_apr
         return too_small;
     }
     
+    public boolean isDateDifferenceGreaterThanLimit(String date_min, String date_max, String field_name_max, int years_limit)
+    {
+        LocalDate date_years_limit = LocalDate.parse(date_min).plusYears(years_limit);
+        boolean is_greater_than_limit = LocalDate.parse(date_max).isAfter(date_years_limit);
+        if(is_greater_than_limit)
+        {
+            this.setErrorListItem(field_name_max, " * The date entered '(" + date_max + ")' is too far after the date, '"+ date_min +"' (maximum: " + years_limit + ").");
+        }
+        return is_greater_than_limit;
+    }
+    
     private boolean isDateFromGreaterThanDateTo()
     {
         boolean isdatefromgreaterthandateto = this.calendar_date_from.isAfter(this.calendar_date_to);
@@ -471,8 +482,12 @@ public class Finance_apr
         //return true;
         return this.calendar_date_to.isAfter(this.calendar_date_from);
     }
-    
-    public boolean isDateEnteredValid(String command)
+    /**
+     * Do not use for LocalDate object. See isLocalDateValid method
+     * @param date
+     * @return 
+     */
+    public boolean isDateEnteredValid(String date)
     {
 	    SimpleDateFormat sdfrmt = new SimpleDateFormat("yyyy-MM-dd");
 	    sdfrmt.setLenient(false);
@@ -481,12 +496,12 @@ public class Finance_apr
              */
 	    try
 	    {
-	        sdfrmt.parse(command);
+	        sdfrmt.parse(date);
 	    }
 	    /* Date format is invalid */
 	    catch (ParseException e)
 	    {
-	        //System.out.println(command+" is Invalid Date format");
+	        msgs.setMessageString("The date supplied (" + date + ") is invalid");
 	        return false;
 	    }
 	    /* Return true if date format is valid */
@@ -644,7 +659,20 @@ public class Finance_apr
             return this.setCalendarDateTo(start_or_end_date);
         }
     }
-    
+    public boolean isLocalDateValid(String label,String date_from_string)
+    {
+        try
+        {
+            LocalDate.parse(date_from_string);
+            return true;
+        }
+        catch(DateTimeParseException e)
+        {
+            this.setErrorListItem(label, "The date supplied (" + date_from_string + ") is invalid");
+            return false;
+        }
+        
+    }    
     private boolean setCalendarDateFrom(String date_from_string)
     {
         try
