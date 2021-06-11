@@ -625,28 +625,6 @@ public class Finance_apr
     {
         return this.month_repayment;
     }
-
-            
-//    public void setDateToCalculateFrom(String df)
-//    {
-//        this.date_from = df;
-//    }
-//    
-//    public String getDateToCalculateFrom()
-//    {
-//        return this.date_from;
-//    }
-//            
-//            
-//    public void setDateToCalculateTo(String dt)
-//    {
-//        this.date_to = dt;
-//    }
-//    
-//    public String getDateToCalculateTo()
-//    {
-//        return this.date_to;
-//    }
     
     public boolean setCalendarDate(String start_or_end_date, boolean start_date)
     {
@@ -659,6 +637,13 @@ public class Finance_apr
             return this.setCalendarDateTo(start_or_end_date);
         }
     }
+    
+    /**
+     * 
+     * @param label
+     * @param date_from_string
+     * @return 
+     */
     public boolean isLocalDateValid(String label,String date_from_string)
     {
         try
