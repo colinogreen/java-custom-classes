@@ -489,23 +489,23 @@ public class Finance_apr
      */
     public boolean isDateEnteredValid(String date)
     {
-	    SimpleDateFormat sdfrmt = new SimpleDateFormat("yyyy-MM-dd");
-	    sdfrmt.setLenient(false);
-	    /* Create Date object
-	     * parse the string into date 
-             */
-	    try
-	    {
-	        sdfrmt.parse(date);
-	    }
-	    /* Date format is invalid */
-	    catch (ParseException e)
-	    {
-	        msgs.setMessageString("The date supplied (" + date + ") is invalid");
-	        return false;
-	    }
-	    /* Return true if date format is valid */
-	    return true;
+        SimpleDateFormat sdfrmt = new SimpleDateFormat("yyyy-MM-dd");
+        sdfrmt.setLenient(false);
+        /* Create Date object
+         * parse the string into date 
+         */
+        try
+        {
+            sdfrmt.parse(date);
+        }
+        /* Date format is invalid */
+        catch (ParseException e)
+        {
+            msgs.setMessageString("The date supplied (" + date + ") is invalid");
+            return false;
+        }
+        /* Return true if date format is valid */
+        return true;
     }
     /**
      * 
@@ -537,6 +537,11 @@ public class Finance_apr
             return false;
         }
         return true;
+    }
+    
+    public void resetMessageString()
+    {
+        msgs.resetMessageString();
     }
     /**
      * This overload works without attempting to reset the items in the error_list property.
@@ -667,6 +672,7 @@ public class Finance_apr
         }
         catch(DateTimeParseException e)
         {
+            this.setErrorListItem("set_calendar_date_error", "The date supplied (" + date_from_string + ") is invalid");
             return false;
         }
         
@@ -722,7 +728,9 @@ public class Finance_apr
      */
     public void setDefaultDateFrom()
     {
+        
         this.calendar_date_from = LocalDate.now();
+        msgs.setMessageString(" * date from is set to " +  this.calendar_date_from.toString() +"**\n");
     }
     
     /**
@@ -730,10 +738,18 @@ public class Finance_apr
      */
     public void setDefaultDateTo()
     {
-        if(this.calendar_date_to == null)
+        if(this.calendar_date_from == null)
         {
-           msgs.resetMessageString("** DEBUG: calendar_date_to WAS NULL **\n");  // clear any previous results and set string
+
            this.calendar_date_to = LocalDate.now().plusMonths(DATE_PLUS_MONTHS);
+           msgs.setMessageString(" * date to is set to " +  this.calendar_date_from.toString() +"**\n");  // clear any previous results and set string
+        }
+        else
+        {
+
+            this.calendar_date_to = this.calendar_date_from.plusMonths(DATE_PLUS_MONTHS);
+            msgs.setMessageString(" * Setting date to: " + this.calendar_date_to.toString() + " - based on date from: " 
+                    + this.calendar_date_from.toString() + "**\n");  // clear any previous results and set string
         }
         
     }
