@@ -63,7 +63,15 @@ abstract class Finance_apr
         // Return messages to any app that needs them from external class.
         return msgs.getMessageString();
     }
-    
+    /**
+     * Truncate potentially long string from console input
+     * @param string
+     * @return 
+     */
+    protected String truncateLongString(String string)
+    {
+        return string.substring(0, Math.min(14, string.length()));
+    }
     
     // * Validation | START //
     /**
@@ -339,7 +347,7 @@ abstract class Finance_apr
      * @param date_from_string
      * @return 
      */
-    public boolean isLocalDateValid(String label,String date_from_string)
+    public boolean isLocalDateValid(String date_from_string)
     {
         try
         {
@@ -348,13 +356,12 @@ abstract class Finance_apr
         }
         catch(DateTimeParseException e)
         {
-            this.setErrorListItem(label, "The " + label + " supplied (" + date_from_string + ") is invalid");
             return false;
         }
         
     }
     /**
-     * Overload that includes the ability to not set and error list item.
+     * Overload that includes the ability to set an error list item.
      * @param label
      * @param date_from_string
      * @param set_error_list_item

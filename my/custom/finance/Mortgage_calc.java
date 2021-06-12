@@ -18,7 +18,7 @@ public class Mortgage_calc extends Finance_apr
     final public int MAX_MORTGAGE_LOAN= 500000; // Recent UK max loan: around 411,000
     final public int MAX_MONTHLY_REPAYMENT = 3000; // Hope should never go higher than that    
 
-    final static int DATE_PLUS_MONTHS = 6;
+    final static int DATE_PLUS_MONTHS = 18;
     //private HashMap<String, String> mortgage_summary = new HashMap<>();
     final private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
@@ -103,14 +103,14 @@ public class Mortgage_calc extends Finance_apr
         {
 
            this.calendar_date_to = LocalDate.now().plusMonths(DATE_PLUS_MONTHS);
-           msgs.setMessageString(" * date to is set to " +  this.calendar_date_from.toString() +"**\n");  // clear any previous results and set string
+           msgs.setMessageString("start date is set to " +  this.calendar_date_from.toString() +"\n");  // clear any previous results and set string
         }
         else
         {
 
             this.calendar_date_to = this.calendar_date_from.plusMonths(DATE_PLUS_MONTHS);
-            msgs.setMessageString(" * Setting date to: " + this.calendar_date_to.toString() + " - based on date from: " 
-                    + this.calendar_date_from.toString() + "**\n");  // clear any previous results and set string
+            msgs.setMessageString("Setting the end date, " + this.calendar_date_to.toString() + " based on the start date, " 
+                    + this.calendar_date_from.toString() + " plus " + Mortgage_calc.DATE_PLUS_MONTHS + " months.\n");  // clear any previous results and set string
         }
         
     }
@@ -317,7 +317,7 @@ public class Mortgage_calc extends Finance_apr
             return msgs.getMessageString();            
         }
         
-        return "Note: There are no mortgage milestones record." + delimiter;
+        return "There are no mortgage milestones records." + delimiter;
 
     }
     
@@ -332,6 +332,7 @@ public class Mortgage_calc extends Finance_apr
             this.setMortgageDayFiguresAllEntries();
         }
     }
+    
     public void getMortgageDayFiguresRangeFromTo(String date_from, String date_to)
     {
         msgs.resetMessageString(); // clear any previous results
@@ -353,7 +354,7 @@ public class Mortgage_calc extends Finance_apr
         
         if (process_method == true && LocalDate.parse(date_from).isAfter(LocalDate.parse(date_to)))
         {
-            this.setErrorListItem("date_from_greater_than_date_to", "The supplied date_from (" + date_from + ") is after the date to (" + date_to + ")"); 
+            this.setErrorListItem("date_from_greater_than_date_to", "The supplied range start date (" + date_from + ") is after the end date (" + date_to + ")"); 
             process_method = false;            
         }
         
@@ -368,7 +369,8 @@ public class Mortgage_calc extends Finance_apr
         }
         else if(process_method == true)
         {
-            this.mortgage_all_sorted.subMap(date_from, date_to).forEach((key, value)->{
+            String date_to_full = LocalDate.parse(date_to).plusDays(1).toString(); // * make sure to include final date in the range
+            this.mortgage_all_sorted.subMap(date_from, date_to_full).forEach((key, value)->{
                 String[] value_items = value.split(" ");
                 this.setMortgageDayFiguresLine(key, value_items);            
             });            
