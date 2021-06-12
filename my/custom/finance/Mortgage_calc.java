@@ -1,22 +1,14 @@
 package my.custom.finance;
 
-//import java.text.DateFormat;
-
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-//import java.text.SimpleDateFormat;
-//import java.time.LocalDate;
-//import java.util.*;
-//import java.util.regex.Pattern;
-//import java.time.*;
-//import java.text.ParseException;
-//import java.time.format.DateTimeParseException;
-//
-import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help display messages to console|GUI|Android app, etc.
-
+/**
+ * 
+ * @author colino20_04
+ */
 public class Mortgage_calc extends Finance_apr
 {
     //* For validation
@@ -41,6 +33,66 @@ public class Mortgage_calc extends Finance_apr
     {
         //super();
         //this.msgs = new MessageDisplayer();
+    }
+    
+    public boolean setMonthlyRepaymentAmount(String amount, double max_num, double min_num, String field_name, String field_label)
+    {
+        //if(!this.isNumberInputValid(apr, monthly_repayment,Double.valueOf(apr.MAX_MONTHLY_REPAYMENT), 10, "monthly_repayment", "monthly repayment"))
+        if (this.inputValueValidated(amount, max_num, min_num, field_name, field_label))
+        {
+            this.setMonthRepayment(Double.valueOf(amount));
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public boolean setMonthlyInterestAmount(String amount, double max_num, double min_num, String field_name, String field_label)
+    {
+        //if(!this.isNumberInputValid(apr, monthly_repayment,Double.valueOf(apr.MAX_MONTHLY_REPAYMENT), 10, "monthly_repayment", "monthly repayment"))
+        if (this.inputValueValidated(amount, max_num, min_num, field_name, field_label))
+        {
+            this.setInterestRate(Double.valueOf(amount));
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public boolean setMortgageRemainingAmount(String amount, double max_num, double min_num, String field_name, String field_label)
+    {
+        //if(!this.isNumberInputValid(apr, monthly_repayment,Double.valueOf(apr.MAX_MONTHLY_REPAYMENT), 10, "monthly_repayment", "monthly repayment"))
+        if (this.inputValueValidated(amount, max_num, min_num, field_name, field_label))
+        {
+            this.setMortgageRemaining(Double.valueOf(amount));
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean inputValueValidated(String amount, double max_num, double min_num, String field_name, String field_label)
+    {
+        if(!this.checkIfInputNumberIsADouble(amount))
+        {
+            this.setErrorListItem(field_name, "The " + field_label + " appears not to be valid.");
+            return false;
+        }
+        
+        boolean too_large = this.checkIfInputNumberTooLarge(amount, max_num, field_name, field_label);
+        if(too_large)
+        {
+            //System.out.println(this.getErrorListMessages());
+            return false;           
+        }
+        boolean too_small = this.checkIfInputNumberTooSmall(amount, min_num, field_name, field_label);
+        if(too_small)
+        {
+            //System.out.println(this.getErrorListMessages());
+            return false;
+        }  
+        
+        return true;            
     }
     /**
      * Overrides parent class

@@ -5,16 +5,14 @@
  */
 package my.custom.finance;
 
-import java.text.DateFormat;
+//import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.time.*;
+//import java.time.*;
 import java.text.ParseException;
 import java.time.format.DateTimeParseException;
-
-
 
 import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help display messages to console|GUI|Android app, etc.
 
@@ -107,7 +105,7 @@ abstract class Finance_apr
         boolean too_large = Double.valueOf(console_input) > max_num;
         if(too_large)
         {
-            this.setErrorListItem(field_name, " * The value entered for '" + field_label + "' is too large: (Maximum: " + max_num + ").");
+            this.setErrorListItem(field_name, "The value entered for '" + field_label + "' is too large: (Maximum: " + max_num + ").");
         }
         return too_large;
     }
@@ -160,8 +158,8 @@ abstract class Finance_apr
      */
     public boolean isDateToGreaterThanDateFrom()
     {
-        msgs.resetMessageString("++ Debug Method: Finance_apr::isDateToGreaterThanDateFrom. Start date: " 
-                + this.calendar_date_to.toString() + " | End date: " +  this.calendar_date_from.toString() ); // clear any previous results and set string
+//        msgs.resetMessageString("++ Debug Method: Finance_apr::isDateToGreaterThanDateFrom. Start date: " 
+//                + this.calendar_date_to.toString() + " | End date: " +  this.calendar_date_from.toString() ); // clear any previous results and set string
         //return true;
         return this.calendar_date_to.isAfter(this.calendar_date_from);
     }
@@ -258,20 +256,37 @@ abstract class Finance_apr
     {
         return this.error_list;
     }
+
+    
+    public void setErrorListMessage(String control_name, String message)
+    {
+        this.setErrorListItem(control_name, message);
+    }
+    
     
     /**
-     * Get error messages as a string delimited by new line and reset error list property before returning.
-     * @return 
+     * Get error messages as a string delimited by new line.
+     * @param reset_error_list
+     * @return delimited string (of error messages)
+     */
+    public String getErrorListMessages(boolean reset_error_list)
+    {
+        return this.getErrorListMessages("\n", reset_error_list);
+    }
+    
+    /**
+     * Get error messages as a string delimited by new line. DO NOT reset error list before returning.
+     * @return delimited string (of error messages)
      */
     public String getErrorListMessages()
     {
-        return this.getErrorListMessages("\n", true);
+        return this.getErrorListMessages("\n", false);
     }    
     /**
-     * Get error messages as a string with the supplied delimiter.
+     * Get error messages as a string with the supplied delimiter. reset error list with second parameter, if necessary.
      * @param delimiter
      * @param reset_error_list
-     * @return 
+     * @return delimited string (of error messages)
      */
     public String getErrorListMessages(String delimiter, boolean reset_error_list)
     {
@@ -287,7 +302,8 @@ abstract class Finance_apr
         }
         
         return return_messages;
-    }    
+    }
+    
     protected void resetErrorList()
     {
         this.error_list.clear();
@@ -332,11 +348,36 @@ abstract class Finance_apr
         }
         catch(DateTimeParseException e)
         {
-            this.setErrorListItem(label, "The date supplied (" + date_from_string + ") is invalid");
+            this.setErrorListItem(label, "The " + label + " supplied (" + date_from_string + ") is invalid");
             return false;
         }
         
-    }    
+    }
+    /**
+     * Overload that includes the ability to not set and error list item.
+     * @param label
+     * @param date_from_string
+     * @param set_error_list_item
+     * @return 
+     */
+    public boolean isLocalDateValid(String label,String date_from_string, boolean set_error_list_item)
+    {
+        try
+        {
+            LocalDate.parse(date_from_string);
+            return true;
+        }
+        catch(DateTimeParseException e)
+        {
+            if(set_error_list_item)
+            {
+                this.setErrorListItem(label, "The " + label + " supplied (" + date_from_string + ") is invalid");
+            }
+            
+            return false;
+        }
+        
+    } 
     protected boolean setCalendarDateFrom(String date_from_string)
     {
         try
@@ -398,6 +439,7 @@ abstract class Finance_apr
         }
     }
     /**
+     * Set a LocalDate based start date
      * A public alias of setCalendarDateFrom method for command line app when date is not entered
      */
     public void setDefaultDateFrom()
@@ -408,6 +450,7 @@ abstract class Finance_apr
     }
     
     /**
+     * Set a LocalDate based end date
      * A public alias of setCalendarDateTo for command line app when date is not entered
      */
     public void setDefaultDateTo()
@@ -430,7 +473,13 @@ abstract class Finance_apr
     
     public String getCalendarDateFrom()
     {
-        return this.calendar_date_from.toString();
+        if(this.calendar_date_from != null)
+        {
+            return this.calendar_date_from.toString();
+        }
+        
+        return ""; // Or return empty string, avoiding null pointer error.
+        
     }
     
     
