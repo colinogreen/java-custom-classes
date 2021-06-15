@@ -9,7 +9,7 @@ import java.util.TreeMap;
  * 
  * @author colino20_04
  */
-public class Mortgage_calc extends Finance_apr
+public class MortgageCalculator extends FinanceApr
 {
     //* For validation
 
@@ -23,16 +23,37 @@ public class Mortgage_calc extends Finance_apr
     final private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_milestones = new TreeMap<>();
+    final private TreeMap<String, Double> mortgage_overpayment = new TreeMap<>(); // Add overpayment date and amount
     
     private boolean milestone_int_less_one_per_day = false;
     private boolean milestone_25percent_amount_paid = false;
     private boolean milestone_50percent_amount_paid = false;
     private boolean milestone_75percent_amount_paid = false;
     
-    public Mortgage_calc()
+    public MortgageCalculator()
     {
-        //super();
-        //this.msgs = new MessageDisplayer();
+        this.addMortgageOverpayment();
+    }
+    
+    /**
+     * debugging version of method overload.
+     */
+    private void addMortgageOverpayment()
+    {
+        //mortgage_overpayment.put("2023-02-11", 499.0);
+        mortgage_overpayment.put("2019-02-11", 499.0);
+        //mortgage_overpayment.put("2026-03-22", 4400.50);
+        mortgage_overpayment.put("2022-05-22", 4400.50);
+    }
+
+    /**
+     * Regular version of method overload to add overpayment amounts by date.
+     * @param date
+     * @param amount 
+     */
+    public void addMortgageOverpayment(String date, double amount)
+    {
+        mortgage_overpayment.put(date, amount);
     }
     
     public boolean setMonthlyRepaymentAmount(String amount, double max_num, double min_num, String field_name, String field_label)
@@ -110,7 +131,7 @@ public class Mortgage_calc extends Finance_apr
 
             this.calendar_date_to = this.calendar_date_from.plusMonths(DATE_PLUS_MONTHS);
             msgs.setMessageString("Setting the end date, " + this.calendar_date_to.toString() + " based on the start date, " 
-                    + this.calendar_date_from.toString() + " plus " + Mortgage_calc.DATE_PLUS_MONTHS + " months.\n");  // clear any previous results and set string
+                    + this.calendar_date_from.toString() + " plus " + MortgageCalculator.DATE_PLUS_MONTHS + " months.\n");  // clear any previous results and set string
         }
         
     }
@@ -134,6 +155,8 @@ public class Mortgage_calc extends Finance_apr
         msg += "Repayment amount: " + this.getMonthRepayment() + "\n";
         msg += "Mortgage interest rate: " + this.getInterestRate() + "\n";
         msg += "Date range: " + this.getCalendarDateFrom() + " - " + getCalendarDateTo() +"\n";
+        msg += "Total interest paid: " + this.getInterestPayableTotal() +"\n";
+        msg += "Total payable: " + this.getTotalPayableIncInterest() +"\n";
         msg += "----------------------------------------------------------------\n";
         
         return msg;
@@ -171,17 +194,21 @@ public class Mortgage_calc extends Finance_apr
                     
                 }
             }
+            
+            if(this.mortgage_overpayment.containsKey(date_add_single.toString()))
+            {
+                day_type +=3; // Register Mortgage overpayment day
+                this.mortgage_remaining = (this.mortgage_remaining - this.mortgage_overpayment.get(date_add_single.toString()));
+                this.addMortgageMilestone(date_add_single.toString(), "An overpayment of " +  formatNumberToDecimalPlaces(2,this.mortgage_overpayment.get(date_add_single.toString()))
+                        + " Was made. Mortgage remaining is "+ formatNumberToDecimalPlaces(2,this.mortgage_remaining ) + ".");
+            }
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
             String mort_entry_string = String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge);
-                //** day_int_charge calc Moved here to see if it works better
-                
-                //mortgage_summary_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
 
-            if(i != 0 && date_add_single.getDayOfMonth() == 1)
+            //if(i != 0 && date_add_single.getDayOfMonth() == 1)
+            if(i != 0 && (day_type== 1 || day_type == 3 || day_type == 4))
             {    
                  // check that mortgage int day rate is below 1 or not and make a note for the milestones report
-                
-                //mort_entry_string += " " + "1";
                 this.checkMortMilestoneIntRateLessThanOnePerDay(date_add_single.toString());
                  // Check whether a certain percentage of the entered mortgage total has been paid back and make a note for milestones
                 this.checkMortMilestonePercentAmountPaid(date_add_single.toString());
@@ -191,20 +218,14 @@ public class Mortgage_calc extends Finance_apr
             mort_entry_string += " " + day_type;
             
             mortgage_all_sorted.put(date_add_single.toString(),mort_entry_string);
-//            else
-//            {
-//                // Run day_int_charge calc only if not run on the 'first day of month' section.
-//                this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
-//            }
-//            //this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
-//            mortgage_all_sorted.put(date_add_single.toString(),String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge) );
-           
+
             if(this.mortgage_remaining <= 0)
             {
                 break; // finish up, as the mortgage has been paid!
             }
             
             this.mortgage_remaining += this.day_int_charge;
+            this.addToDailyInterestTotal(this.day_int_charge);
 
         }
         msgs.setMessageString("** Calculations were based on a monthly repayment of £" + month_repayment + " **","\n");

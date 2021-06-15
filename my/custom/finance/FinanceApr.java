@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 //import java.time.*;
 import java.text.ParseException;
+import java.text.DecimalFormat;
 import java.time.format.DateTimeParseException;
 
 import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help display messages to console|GUI|Android app, etc.
@@ -20,11 +21,13 @@ import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help di
  *
  * @author colino1804
  */
-abstract class Finance_apr 
+abstract class FinanceApr 
 {  
     protected double mortgage_remaining_initial;
     protected double mortgage_remaining;
+    
     protected double interest_rate;
+
     
     //* For validation
     final protected static String DOUBLE_PATTERN = "[0-9]+(\\.){0,1}[0-9]*";
@@ -34,6 +37,8 @@ abstract class Finance_apr
     //double day_interest_charge;
     protected double month_repayment;
     protected double day_int_charge;
+    protected double daily_interest_total = 0;
+    protected double total_payable_inc_interest = 0;
     
     protected String date_from;
     protected String date_to;
@@ -50,7 +55,7 @@ abstract class Finance_apr
 
     
     //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
-    public Finance_apr()
+    public FinanceApr()
     {
         this.msgs = new MessageDisplayer();
     }
@@ -62,6 +67,36 @@ abstract class Finance_apr
     {
         // Return messages to any app that needs them from external class.
         return msgs.getMessageString();
+    }
+    
+    protected void addToDailyInterestTotal(double value)
+    {
+        this.daily_interest_total += value;
+    }
+    
+    protected String getTotalPayableIncInterest()
+    {
+        return this.formatNumberToDecimalPlaces(2,(this.getMortgageRemainingInitial() + Double.valueOf(this.getInterestPayableTotal())));
+    }
+    
+    protected String getInterestPayableTotal()
+    {
+        return this.formatNumberToDecimalPlaces(2, this.daily_interest_total);
+    }
+    
+    protected String formatNumberToDecimalPlaces(double number)
+    {
+        DecimalFormat d = new DecimalFormat("#.##");
+        //String string_places = "%." + decimal_places + "f";
+        return d.format(4);
+    }
+    
+    protected String formatNumberToDecimalPlaces(int decimal_places,double number)
+    {
+        //DecimalFormat d = new DecimalFormat("#.##");
+        String string_places = "%." + decimal_places + "f";
+        
+        return String.format(string_places, number);
     }
     /**
      * Truncate potentially long string from console input
