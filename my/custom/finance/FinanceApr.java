@@ -24,6 +24,7 @@ import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help di
 abstract class FinanceApr 
 {  
     protected double mortgage_remaining_initial;
+    protected double mortgage_remaining_increment;
     protected double mortgage_remaining;
     
     protected double interest_rate;
@@ -621,6 +622,10 @@ abstract class FinanceApr
     protected double getMortgageRemainingInitial()
     {
         return this.mortgage_remaining_initial;
+    }  
+    protected double getMortgageRemainingIncrement()
+    {
+        return this.mortgage_remaining_increment;
     }    
     /**
      * Used in original pre-2021 mortgage-calculator

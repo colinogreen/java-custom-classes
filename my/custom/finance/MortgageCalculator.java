@@ -11,17 +11,17 @@ import java.util.TreeMap;
  */
 public class MortgageCalculator extends FinanceApr
 {
-    //* For validation
 
     final public double MAX_MORTGAGE_INT_RATE = 18.0; // Based on highest UK base rate ever: 17%
-    final public int MAX_MORTGAGE_TERM = 40; // Recent UK max
+    final public int MAX_MORTGAGE_TERM = 40; // In years. Recent UK max
     final public int MAX_MORTGAGE_LOAN= 500000; // Recent UK max loan: around 411,000
-    final public int MAX_MONTHLY_REPAYMENT = 3000; // Hope should never go higher than that    
+    final public int MAX_MONTHLY_REPAYMENT = 3000; // Hope anyone should ever have to repay higher than that!  
 
     final static int DATE_PLUS_MONTHS = 18;
     //private HashMap<String, String> mortgage_summary = new HashMap<>();
+    //final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
     final private TreeMap<String, String> mortgage_all_sorted = new TreeMap<>();
-    final private TreeMap<String, String> mortgage_summary_sorted = new TreeMap<>();
+
     final private TreeMap<String, String> mortgage_milestones = new TreeMap<>();
     final private TreeMap<String, Double> mortgage_overpayment = new TreeMap<>(); // Add overpayment date and amount
     
@@ -167,6 +167,7 @@ public class MortgageCalculator extends FinanceApr
         float dayCount = Duration.between(this.calendar_date_from.atStartOfDay(), this.calendar_date_to.atStartOfDay()).toDays();
         msgs.resetMessageString("** Calculations are based on a monthly repayment of £" + month_repayment + " **"); // clear any previous results and set string
         this.mortgage_remaining_initial = this.mortgage_remaining;
+        this.mortgage_remaining_increment = this.mortgage_remaining;
         LocalDate date = this.calendar_date_from;
 
         LocalDate date_add = date.plusDays((int)dayCount);
