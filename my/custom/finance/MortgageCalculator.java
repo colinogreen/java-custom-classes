@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 /**
  * 
- * @author colino20_04
+ * @author Colin M.
  */
 public class MortgageCalculator extends FinanceApr
 {

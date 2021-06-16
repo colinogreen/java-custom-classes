@@ -19,7 +19,7 @@ import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help di
 
 /**
  *
- * @author colino1804
+ * @author Colin M.
  */
 abstract class FinanceApr 
 {  
