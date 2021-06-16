@@ -35,7 +35,7 @@ public class MortgageCalculator extends FinanceApr
     
     public MortgageCalculator()
     {
-        this.addMortgageOverpayment();
+        //this.addMortgageOverpayment();
     }
     
     /**

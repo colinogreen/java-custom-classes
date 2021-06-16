@@ -269,7 +269,7 @@ abstract class FinanceApr
      * @param control_name
      * @param error_message 
      */
-    protected void setErrorListItem(String control_name, String error_message)
+    public void setErrorListItem(String control_name, String error_message)
     {
         this.setErrorListItem(control_name ,error_message, false);
     }
@@ -279,7 +279,7 @@ abstract class FinanceApr
      * @param error_message
      * @param reset_error_list 
      */
-    protected void setErrorListItem(String control_name, String error_message, boolean reset_error_list)
+    public void setErrorListItem(String control_name, String error_message, boolean reset_error_list)
     {
         if(reset_error_list)
         {
@@ -298,10 +298,10 @@ abstract class FinanceApr
     }
 
     
-    public void setErrorListMessage(String control_name, String message)
-    {
-        this.setErrorListItem(control_name, message);
-    }
+//    public void setErrorListMessage(String control_name, String message)
+//    {
+//        this.setErrorListItem(control_name, message);
+//    }
     
     
     /**
