@@ -11,7 +11,10 @@ import java.util.TreeMap;
  */
 public class MortgageCalculator extends FinanceApr
 {
-
+    //protected double mortgage_remaining_initial;
+    protected double mortgage_remaining_increment;
+    protected double mortgage_remaining;
+    
     final public double MAX_MORTGAGE_INT_RATE = 18.0; // Based on highest UK base rate ever: 17%
     final public int MAX_MORTGAGE_TERM = 40; // In years. Recent UK max
     final public int MAX_MORTGAGE_LOAN= 500000; // Recent UK max loan: around 411,000
@@ -56,6 +59,29 @@ public class MortgageCalculator extends FinanceApr
         mortgage_overpayment.put(date, amount);
     }
     
+    /**
+     * Used in original pre-2021 mortgage-calculator
+     * @return 
+     */
+    protected double getMortgageRemaining()
+    {
+        return this.mortgage_remaining;
+    }
+//    protected double getMortgageRemainingInitial()
+//    {
+//        return this.mortgage_remaining_initial;
+//    }  
+    protected double getMortgageRemainingIncrement()
+    {
+        return this.mortgage_remaining_increment;
+    }
+    
+    
+    protected String getTotalMortgagePayableIncInterest()
+    {
+        return this.formatNumberToDecimalPlaces(2,(this.getMortgageRemaining() + Double.valueOf(this.getInterestPayableTotal())));
+    }
+    
     public boolean setMonthlyRepaymentAmount(String amount, double max_num, double min_num, String field_name, String field_label)
     {
         //if(!this.isNumberInputValid(apr, monthly_repayment,Double.valueOf(apr.MAX_MONTHLY_REPAYMENT), 10, "monthly_repayment", "monthly repayment"))
@@ -78,6 +104,16 @@ public class MortgageCalculator extends FinanceApr
         }
         
         return false;
+    }
+    
+    
+    /**
+     * Used in original pre-2021 mortgage-calculator
+     * @param amount 
+     */
+    public void setMortgageRemaining(double amount)
+    {
+        this.mortgage_remaining = amount;
     }
     
     public boolean setMortgageRemainingAmount(String amount, double max_num, double min_num, String field_name, String field_label)
@@ -104,13 +140,14 @@ public class MortgageCalculator extends FinanceApr
         if(too_large)
         {
             //System.out.println(this.getErrorListMessages());
-            return false;           
+            return false;// If too_large = true           
         }
-        boolean too_small = this.checkIfInputNumberTooSmall(amount, min_num, field_name, field_label);
-        if(too_small)
+        
+        //boolean too_small = this.checkIfInputNumberTooSmall(amount, min_num, field_name, field_label);
+        if(this.checkIfInputNumberTooSmall(amount, min_num, field_name, field_label))
         {
-            //System.out.println(this.getErrorListMessages());
-            return false;
+            
+            return false; // If too_small = true
         }  
         
         return true;            
@@ -151,12 +188,12 @@ public class MortgageCalculator extends FinanceApr
     {
         String msg = "----------------------------------------------------------------\n";
         msg += "Note: These calculations are based on a the following figures:\n";
-        msg += "Initial Mortgage payment remaining: " + this.getMortgageRemainingInitial() + "\n";
+        msg += "Initial Mortgage payment remaining: " + this.getMortgageRemaining() + "\n";
         msg += "Repayment amount: " + this.getMonthRepayment() + "\n";
         msg += "Mortgage interest rate: " + this.getInterestRate() + "\n";
         msg += "Date range: " + this.getCalendarDateFrom() + " - " + getCalendarDateTo() +"\n";
         msg += "Total interest paid: " + this.getInterestPayableTotal() +"\n";
-        msg += "Total payable: " + this.getTotalPayableIncInterest() +"\n";
+        msg += "Total payable: " + this.getTotalMortgagePayableIncInterest() +"\n";
         msg += "----------------------------------------------------------------\n";
         
         return msg;
@@ -166,7 +203,7 @@ public class MortgageCalculator extends FinanceApr
 
         float dayCount = Duration.between(this.calendar_date_from.atStartOfDay(), this.calendar_date_to.atStartOfDay()).toDays();
         msgs.resetMessageString("** Calculations are based on a monthly repayment of £" + month_repayment + " **"); // clear any previous results and set string
-        this.mortgage_remaining_initial = this.mortgage_remaining;
+        //this.mortgage_remaining_initial = this.mortgage_remaining;
         this.mortgage_remaining_increment = this.mortgage_remaining;
         LocalDate date = this.calendar_date_from;
 
@@ -184,14 +221,14 @@ public class MortgageCalculator extends FinanceApr
             if(i != 0 && date_add_single.getDayOfMonth() == 1)
             {
                 day_type +=1; // Mortgage payment day
-                if(mortgage_remaining > this.month_repayment)
+                if(mortgage_remaining_increment > this.month_repayment)
                 {
-                    this.mortgage_remaining -= this.month_repayment; // deduct monthly mortgage repayment if it is the 1st of a month and not the first run of the loop (which may take into account first day, anyway.
+                    this.mortgage_remaining_increment -= this.month_repayment; // deduct monthly mortgage repayment if it is the 1st of a month and not the first run of the loop (which may take into account first day, anyway.
                     
                 }
                 else
                 {
-                    this.mortgage_remaining = (this.mortgage_remaining - this.mortgage_remaining); // Possibly the final mortgage payment, so, finish up!
+                    this.mortgage_remaining_increment = (this.mortgage_remaining_increment - this.mortgage_remaining_increment); // Possibly the final mortgage payment, so, finish up!
                     
                 }
             }
@@ -199,12 +236,12 @@ public class MortgageCalculator extends FinanceApr
             if(this.mortgage_overpayment.containsKey(date_add_single.toString()))
             {
                 day_type +=3; // Register Mortgage overpayment day
-                this.mortgage_remaining = (this.mortgage_remaining - this.mortgage_overpayment.get(date_add_single.toString()));
+                this.mortgage_remaining_increment = (this.mortgage_remaining_increment - this.mortgage_overpayment.get(date_add_single.toString()));
                 this.addMortgageMilestone(date_add_single.toString(), "An overpayment of " +  formatNumberToDecimalPlaces(2,this.mortgage_overpayment.get(date_add_single.toString()))
-                        + " Was made. Mortgage remaining is "+ formatNumberToDecimalPlaces(2,this.mortgage_remaining ) + ".");
+                        + " Was made. Mortgage remaining is "+ formatNumberToDecimalPlaces(2,this.mortgage_remaining_increment ) + ".");
             }
-            this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining / 100);
-            String mort_entry_string = String.format("%.2f",this.mortgage_remaining) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge);
+            this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining_increment / 100);
+            String mort_entry_string = String.format("%.2f",this.mortgage_remaining_increment) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge);
 
             //if(i != 0 && date_add_single.getDayOfMonth() == 1)
             if(i != 0 && (day_type== 1 || day_type == 3 || day_type == 4))
@@ -220,12 +257,12 @@ public class MortgageCalculator extends FinanceApr
             
             mortgage_all_sorted.put(date_add_single.toString(),mort_entry_string);
 
-            if(this.mortgage_remaining <= 0)
+            if(this.mortgage_remaining_increment <= 0)
             {
                 break; // finish up, as the mortgage has been paid!
             }
             
-            this.mortgage_remaining += this.day_int_charge;
+            this.mortgage_remaining_increment += this.day_int_charge;
             this.addToDailyInterestTotal(this.day_int_charge);
 
         }
@@ -243,7 +280,7 @@ public class MortgageCalculator extends FinanceApr
         if(this.milestone_int_less_one_per_day == false && (int_charge < 1))
         {
             this.addMortgageMilestone(date, "The daily interest rate would go below 1 for the first time and would be " + int_charge
-                    + " (with " + Float.valueOf(String.format("%.2f",this.mortgage_remaining)) + " remaining on the mortgage total supplied).");
+                    + " (with " + Float.valueOf(String.format("%.2f",this.mortgage_remaining_increment)) + " remaining on the mortgage total supplied).");
             this.milestone_int_less_one_per_day= true; // set true so that this is no longer activated.
         }
     }
@@ -254,10 +291,10 @@ public class MortgageCalculator extends FinanceApr
         if(this.milestone_25percent_amount_paid == false )
         {
             
-            double mortgage_percent_less_paid = this.mortgage_remaining_initial - (this.mortgage_remaining_initial * 25 / 100 );
-            if( this.mortgage_remaining < mortgage_percent_less_paid)
+            double mortgage_percent_less_paid = this.mortgage_remaining - (this.mortgage_remaining * 25 / 100 );
+            if( this.mortgage_remaining_increment < mortgage_percent_less_paid)
             {
-                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining));
+                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining_increment));
                 this.addMortgageMilestone(date, "The mortgage remaining is now at least 25 percent less than the initial amount (" + mort_remain + ")");
                 this.milestone_25percent_amount_paid = true;               
             }
@@ -266,10 +303,10 @@ public class MortgageCalculator extends FinanceApr
         
         else if(this.milestone_50percent_amount_paid == false )
         {
-            double mortgage_percent_less_paid = this.mortgage_remaining_initial - (this.mortgage_remaining_initial * 50 / 100 );
-            if( this.mortgage_remaining < mortgage_percent_less_paid)
+            double mortgage_percent_less_paid = this.mortgage_remaining - (this.mortgage_remaining * 50 / 100 );
+            if( this.mortgage_remaining_increment < mortgage_percent_less_paid)
             {
-                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining));
+                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining_increment));
                 this.addMortgageMilestone(date, "The mortgage figure remaining is now at least 50 percent less than the initial amount (" + mort_remain + ")");
                 this.milestone_50percent_amount_paid = true;                
             }            
@@ -278,10 +315,10 @@ public class MortgageCalculator extends FinanceApr
         
         else if(this.milestone_75percent_amount_paid == false )
         {
-            double mortgage_percent_less_paid = this.mortgage_remaining_initial - (this.mortgage_remaining_initial * 75 / 100 );
-            if( this.mortgage_remaining < mortgage_percent_less_paid)
+            double mortgage_percent_less_paid = this.mortgage_remaining - (this.mortgage_remaining * 75 / 100 );
+            if( this.mortgage_remaining_increment < mortgage_percent_less_paid)
             {
-                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining));
+                Float mort_remain = Float.valueOf(String.format("%.2f",this.mortgage_remaining_increment));
                 this.addMortgageMilestone(date, "The mortgage amount remaining is now at least 75 percent less than the initial amount (" + mort_remain + ")");
                 this.milestone_75percent_amount_paid = true;                
             }            

@@ -23,9 +23,6 @@ import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help di
  */
 abstract class FinanceApr 
 {  
-    protected double mortgage_remaining_initial;
-    protected double mortgage_remaining_increment;
-    protected double mortgage_remaining;
     
     protected double interest_rate;
 
@@ -74,11 +71,7 @@ abstract class FinanceApr
     {
         this.daily_interest_total += value;
     }
-    
-    protected String getTotalPayableIncInterest()
-    {
-        return this.formatNumberToDecimalPlaces(2,(this.getMortgageRemainingInitial() + Double.valueOf(this.getInterestPayableTotal())));
-    }
+
     
     protected String getInterestPayableTotal()
     {
@@ -167,7 +160,9 @@ abstract class FinanceApr
         if(too_small)
         {
             this.setErrorListItem(field_name, " * The value entered for '" + field_label + "' is too small (minimum: " + min_num + ").");
+            //System.out.println("** DEBUG * The value entered for '" + field_label + "' is too small? (minimum: " + min_num + ") - input: " + console_input + " too_small?: " + too_small + ".");
         }
+
         return too_small;
     }
     
@@ -449,38 +444,38 @@ abstract class FinanceApr
         }
         
     }
-    /**
-     * @deprecated
-     */
-    private void setDateRanges()
-    {
-        String date_set1[] = this.date_from.split("-");
-        //System.out.println(date_set[0] + "," + (Integer.valueOf(date_set[1]) -1) + "," + date_set[0]);
-        if(date_set1.length == 3)
-        {         
-            this.calendar_date_from = LocalDate.parse(date_from);            
-        }
-        else
-        {
-            this.setDefaultDateFrom();
-            msgs.resetMessageString("Note: default start date to: " + this.calendar_date_from.toString());  // clear any previous results and set string
-        }
-
-        String date_set2[] = this.date_to.split("-");
-        if(date_set1.length == 3)
-        {
-            int year = Integer.valueOf(date_set2[0]);
-            int month200 = (Integer.valueOf(date_set2[1]) -1);
-            int day = Integer.valueOf(date_set2[2]);
-            //this.calendar_date_to.of(year, month, day);            
-            this.calendar_date_to = LocalDate.parse(date_to);            
-        }
-        else
-        {
-            this.setDefaultDateTo();
-            msgs.resetMessageString("Note: Setting default end date to: " + this.calendar_date_to.toString()); // clear any previous results and set string
-        }
-    }
+//    /**
+//     * @deprecated
+//     */
+//    private void setDateRanges()
+//    {
+//        String date_set1[] = this.date_from.split("-");
+//        //System.out.println(date_set[0] + "," + (Integer.valueOf(date_set[1]) -1) + "," + date_set[0]);
+//        if(date_set1.length == 3)
+//        {         
+//            this.calendar_date_from = LocalDate.parse(date_from);            
+//        }
+//        else
+//        {
+//            this.setDefaultDateFrom();
+//            msgs.resetMessageString("Note: default start date to: " + this.calendar_date_from.toString());  // clear any previous results and set string
+//        }
+//
+//        String date_set2[] = this.date_to.split("-");
+//        if(date_set1.length == 3)
+//        {
+////            int year = Integer.valueOf(date_set2[0]);
+////            int month200 = (Integer.valueOf(date_set2[1]) -1);
+////            int day = Integer.valueOf(date_set2[2]);
+//            //this.calendar_date_to.of(year, month, day);            
+//            this.calendar_date_to = LocalDate.parse(date_to);            
+//        }
+//        else
+//        {
+//            this.setDefaultDateTo();
+//            msgs.resetMessageString("Note: Setting default end date to: " + this.calendar_date_to.toString() + "."); // clear any previous results and set string
+//        }
+//    }
     /**
      * Set a LocalDate based start date
      * A public alias of setCalendarDateFrom method for command line app when date is not entered
@@ -489,10 +484,11 @@ abstract class FinanceApr
     {
         
         this.calendar_date_from = LocalDate.now();
-        msgs.setMessageString(" * date from is set to " +  this.calendar_date_from.toString() +"**\n");
+        msgs.setMessageString("The date from is set to today's date: " +  this.calendar_date_from.toString() +".\n");
     }
     
     /**
+     * NOTE: Overridden in child class, MortgageCalculator
      * Set a LocalDate based end date
      * A public alias of setCalendarDateTo for command line app when date is not entered
      */
@@ -551,18 +547,10 @@ abstract class FinanceApr
     public void anotherHello()
     {
         System.out.println("Hello world from Finance_apr class!");
-        System.out.println("The mortgage remaining has been set to been set to " + getMortgageRemaining());
+        //System.out.println("The mortgage remaining has been set to been set to " + getMortgageRemaining());
         System.out.println("The interest rate has been set to " + getInterestRate());
     }
-    
-    /**
-     * Used in original pre-2021 mortgage-calculator
-     * @param amount 
-     */
-    public void setMortgageRemaining(double amount)
-    {
-        this.mortgage_remaining = amount;
-    }
+
     
     // START | Questions for prompts in Desktop program or Android app, etc.
     public String promptForMonthlyMortgageRepayment()
@@ -611,22 +599,7 @@ abstract class FinanceApr
         return "Enter the " + start_end + " date of the calculation: ";
     } 
     // END | Questions for prompts in Desktop program or Android app, etc.
-    /**
-     * Used in original pre-2021 mortgage-calculator
-     * @return 
-     */
-    protected double getMortgageRemaining()
-    {
-        return this.mortgage_remaining;
-    }
-    protected double getMortgageRemainingInitial()
-    {
-        return this.mortgage_remaining_initial;
-    }  
-    protected double getMortgageRemainingIncrement()
-    {
-        return this.mortgage_remaining_increment;
-    }    
+  
     /**
      * Used in original pre-2021 mortgage-calculator
      * @param interest_rate 
