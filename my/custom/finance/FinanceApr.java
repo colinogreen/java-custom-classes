@@ -20,6 +20,7 @@ import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help di
 /**
  *
  * @author Colin M.
+ * This class uses the class MessageDisplayer at https://github.com/colinogreen/java-custom-classes/blob/master/my/custom/MessageDisplayer.java
  */
 abstract class FinanceApr 
 {  
