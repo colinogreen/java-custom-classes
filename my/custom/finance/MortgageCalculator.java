@@ -198,9 +198,34 @@ public class MortgageCalculator extends FinanceApr
         
         return msg;
     }
+
+    /**
+     * Overload that resets the mortgage calc variables before re-running the calculation.
+     * @param reset_variables 
+     */
+    public void processMortgateInterestCalculation(boolean reset_variables)
+    {
+        if(reset_variables)
+        {
+            this.resetMortgageInterestVariables();
+            this.processMortgateInterestCalculation();            
+        }
+    }
+    
+    private void resetMortgageInterestVariables()
+    {
+        this.daily_interest_total = 0;
+        
+        milestone_int_less_one_per_day = false;
+        milestone_25percent_amount_paid = false;
+        milestone_50percent_amount_paid = false;
+        milestone_75percent_amount_paid = false; 
+        this.mortgage_milestones.clear();
+        this.mortgage_all_sorted.clear();
+    }
+    
     public void processMortgateInterestCalculation()
     {
-
         float dayCount = Duration.between(this.calendar_date_from.atStartOfDay(), this.calendar_date_to.atStartOfDay()).toDays();
         msgs.resetMessageString("** Calculations are based on a monthly repayment of £" + month_repayment + " **"); // clear any previous results and set string
         //this.mortgage_remaining_initial = this.mortgage_remaining;
