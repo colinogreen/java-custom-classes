@@ -59,6 +59,21 @@ public class MortgageCalculator extends FinanceApr
         mortgage_overpayment.put(date, amount);
     }
     
+    public String listMortgageOverpayments()
+    {
+        String msg = "No overpayments found";
+        msgs.resetMessageString();
+        this.mortgage_overpayment.forEach((date, text)->{
+            msgs.setMessageString("Date: " + date + " - Amount:" + text);
+        });
+        
+        if(msgs.getMessageString()!= null )
+        {
+            msg = msgs.getMessageString();
+        }
+        return msg;
+    }
+    
     /**
      * Used in original pre-2021 mortgage-calculator
      * @return 

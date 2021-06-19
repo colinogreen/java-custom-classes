@@ -4,15 +4,18 @@ import java.io.File;
 import java.io.FileWriter;
 import javax.swing.JFileChooser;
 import java.lang.String;
+import java.util.HashMap;
 
 /**
  *
  * @author Colin M.
  */
-public class MessageDisplayer 
+final public class MessageDisplayer 
 {
         
     private String message_string; //* Use with setMessageString and GetMessageString to send messages back to whatever app (console, GUI, Android ...) is using them
+    private String error_list_messages;
+    final private HashMap<String, String> error_list = new HashMap<>();
 // ** Message methods | START (possibly separate into separate re-usable message class) **//
     
     /**
@@ -94,4 +97,97 @@ public class MessageDisplayer
         return this.message_string.split(delimiter);
     }
      // ** Message methods | END **// (possibly separate into separate re-usable message class)
+    
+    //** Error methods (with error_list property | START **//
+    
+    public void setErrorListItem(String control_name, String error_message)
+    {
+        this.setErrorListItem(control_name ,error_message, false);
+    }
+    /**
+     * Overload version with the ability to reset the error list, if necessary.
+     * @param control_name
+     * @param error_message
+     * @param reset_error_list 
+     */
+    public void setErrorListItem(String control_name, String error_message, boolean reset_error_list)
+    {
+        if(reset_error_list)
+        {
+            this.resetErrorList();
+        }
+        this.error_list.put(control_name ,error_message);
+    }    
+    public int getErrorListCount()
+    {
+        return this.error_list.size();
+    }
+    
+    public HashMap getErrorListItems()
+    {
+        return this.error_list;
+    }
+
+    
+//    public void setErrorListMessage(String control_name, String message)
+//    {
+//        this.setErrorListItem(control_name, message);
+//    }
+    
+    
+    /**
+     * Get error messages as a string delimited by new line.
+     * @param reset_error_list
+     * @return delimited string (of error messages)
+     */
+    public String getErrorListMessages(boolean reset_error_list)
+    {
+        return this.getErrorListMessages("\n", reset_error_list);
+    }
+    
+    /**
+     * Get error messages as a string delimited by new line. DO NOT reset error list before returning.
+     * @return delimited string (of error messages)
+     */
+    public String getErrorListMessages()
+    {
+        return this.getErrorListMessages("\n", false);
+    }    
+    /**
+     * Get error messages as a string with the supplied delimiter. reset error list with second parameter, if necessary.
+     * @param delimiter
+     * @param reset_error_list
+     * @return delimited string (of error messages)
+     */
+    public String getErrorListMessages(String delimiter, boolean reset_error_list)
+    {
+        this.error_list_messages = "";
+        this.error_list.forEach((label,message)->
+        {
+           this.error_list_messages += message + delimiter;
+        });
+        String return_messages = this.error_list_messages;
+        if(reset_error_list)
+        {
+            this.resetErrorList(); // Potentially causes problems if this is not done when re-running operation.
+        }
+        
+        return return_messages;
+    }
+    
+    protected void resetErrorList()
+    {
+        this.error_list.clear();
+        //System.out.println("++ DEBUG ++:\nerror_list_clear_results:" + this.error_list.toString() + "\n+++");
+    }
+    
+    public Object[] getErrorListKeysArray()
+    {
+        return this.error_list.keySet().toArray();
+    }
+    public Object[] getErrorListValuesArray()
+    {
+        return this.error_list.values().toArray();
+    }
+    //** Error methods (with error_list property | END **//
 }
