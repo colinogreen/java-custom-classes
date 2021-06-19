@@ -98,7 +98,7 @@ abstract class FinanceApr
      * @param string
      * @return 
      */
-    protected String truncateLongString(String string)
+    public String truncateLongString(String string)
     {
         return string.substring(0, Math.min(14, string.length()));
     }
@@ -271,7 +271,7 @@ abstract class FinanceApr
      */
     public void setErrorListItem(String control_name, String error_message)
     {
-        this.setErrorListItem(control_name ,error_message, false);
+        msgs.setErrorListItem(control_name ,error_message, false);
     }
     /**
      * Overload version with the ability to reset the error list, if necessary.
@@ -281,20 +281,21 @@ abstract class FinanceApr
      */
     public void setErrorListItem(String control_name, String error_message, boolean reset_error_list)
     {
-        if(reset_error_list)
-        {
-            this.resetErrorList();
-        }
-        this.error_list.put(control_name ,error_message);
+        msgs.setErrorListItem(control_name ,error_message,reset_error_list);
+//        if(reset_error_list)
+//        {
+//            this.resetErrorList();
+//        }
+//        this.error_list.put(control_name ,error_message);
     }    
     public int getErrorListCount()
     {
-        return this.error_list.size();
+        return msgs.getErrorListCount();
     }
     
     public HashMap getErrorListItems()
     {
-        return this.error_list;
+        return msgs.getErrorListItems();
     }
 
     
@@ -305,13 +306,14 @@ abstract class FinanceApr
     
     
     /**
-     * Get error messages as a string delimited by new line.
+     * 
      * @param reset_error_list
-     * @return delimited string (of error messages)
+     * @return msgs
      */
+    
     public String getErrorListMessages(boolean reset_error_list)
     {
-        return this.getErrorListMessages("\n", reset_error_list);
+        return msgs.getErrorListMessages(reset_error_list);
     }
     
     /**
@@ -320,7 +322,7 @@ abstract class FinanceApr
      */
     public String getErrorListMessages()
     {
-        return this.getErrorListMessages("\n", false);
+        return msgs.getErrorListMessages();
     }    
     /**
      * Get error messages as a string with the supplied delimiter. reset error list with second parameter, if necessary.
@@ -330,33 +332,22 @@ abstract class FinanceApr
      */
     public String getErrorListMessages(String delimiter, boolean reset_error_list)
     {
-        this.error_list_messages = "";
-        this.error_list.forEach((label,message)->
-        {
-           this.error_list_messages += message + delimiter;
-        });
-        String return_messages = this.error_list_messages;
-        if(reset_error_list)
-        {
-            this.resetErrorList(); // Potentially causes problems if this is not done when re-running operation.
-        }
-        
-        return return_messages;
+        return msgs.getErrorListMessages(delimiter, reset_error_list);
     }
     
-    protected void resetErrorList()
+    public void resetErrorList()
     {
-        this.error_list.clear();
+        msgs.resetErrorList();
         //System.out.println("++ DEBUG ++:\nerror_list_clear_results:" + this.error_list.toString() + "\n+++");
     }
     
     public Object[] getErrorListKeysArray()
     {
-        return this.error_list.keySet().toArray();
+        return msgs.getErrorListKeysArray();
     }
     public Object[] getErrorListValuesArray()
     {
-        return this.error_list.values().toArray();
+        return msgs.getErrorListValuesArray();
     }
     // * Validation | END //
 
@@ -397,24 +388,16 @@ abstract class FinanceApr
      * @param label
      * @param date_from_string
      * @param set_error_list_item
-     * @return 
+     * @return true or false
      */
     public boolean isLocalDateValid(String label,String date_from_string, boolean set_error_list_item)
     {
-        try
+        if(!this.isLocalDateValid(date_from_string)&& set_error_list_item)
         {
-            LocalDate.parse(date_from_string);
-            return true;
-        }
-        catch(DateTimeParseException e)
-        {
-            if(set_error_list_item)
-            {
-                this.setErrorListItem(label, "The " + label + " supplied (" + date_from_string + ") is invalid");
-            }
-            
+            this.setErrorListItem(label, "The " + label + " supplied (" + date_from_string + ") is invalid");
             return false;
         }
+        return this.isLocalDateValid(date_from_string);
         
     } 
     protected boolean setCalendarDateFrom(String date_from_string)

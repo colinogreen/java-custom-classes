@@ -175,7 +175,7 @@ final public class MessageDisplayer
         return return_messages;
     }
     
-    protected void resetErrorList()
+    public void resetErrorList()
     {
         this.error_list.clear();
         //System.out.println("++ DEBUG ++:\nerror_list_clear_results:" + this.error_list.toString() + "\n+++");

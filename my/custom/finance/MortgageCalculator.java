@@ -74,6 +74,15 @@ public class MortgageCalculator extends FinanceApr
         return msg;
     }
     
+    public boolean isMortgageOverpaymentEntryExists(String date)
+    {
+        return this.mortgage_overpayment.containsKey(date);
+    }
+            
+    public void removeMortgageOverpaymentEntry(String date)
+    {
+        this.mortgage_overpayment.remove(date);
+    }    
     /**
      * Used in original pre-2021 mortgage-calculator
      * @return 
