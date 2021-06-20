@@ -37,7 +37,9 @@ abstract class FinanceApr
     protected double month_repayment;
     protected double day_int_charge;
     protected double daily_interest_total = 0;
+    protected double daily_interest_total_original = 0;
     protected double total_payable_inc_interest = 0;
+    protected double total_payable_inc_interest_original = 0;
     
     protected String date_from;
     protected String date_to;
@@ -72,7 +74,30 @@ abstract class FinanceApr
     {
         this.daily_interest_total += value;
     }
-
+    
+    
+    protected void setDailyInterestTotalOriginal(double value)
+    {
+        this.daily_interest_total_original += value;
+    }
+    protected double getDailyInterestTotalOriginal()
+    {
+        return this.daily_interest_total_original;
+    }   
+    
+    protected void setTotalPayableIncInterestOriginal(double value)
+    {
+        this.total_payable_inc_interest_original += value;
+    }
+    protected double getTotalPayableIncInterestOriginal()
+    {
+        return this.total_payable_inc_interest_original;
+    }  
+    
+    protected double getDailyInterestSavedByOverpaying()
+    {
+        return (this.getDailyInterestTotalOriginal() - Double.valueOf(this.getInterestPayableTotal()) );
+    }
     
     protected String getInterestPayableTotal()
     {

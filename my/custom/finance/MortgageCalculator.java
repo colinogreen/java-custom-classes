@@ -77,6 +77,27 @@ public class MortgageCalculator extends FinanceApr
         return msg;
     }
     
+    public boolean overpaymentInputValidateAndProcess(String date, String amount)
+    {
+        if(!this.isLocalDateValid(date))
+        {
+            this.setErrorListItem("overpay_date", "The date (" + this.truncateLongString(date) + ") appears to be invalid");
+            //return false;
+        }
+        if(!this.checkIfInputNumberIsADouble(amount))
+        {
+            this.setErrorListItem("overpay_amount", "The overpayment amount (" + this.truncateLongString(amount) + ") appears to be invalid");
+        }
+     
+        if(this.getErrorListCount()>0)
+        {
+            return false;
+        }
+        // This will check the validity/size of the overpayment amount and set error messages (if necessary) based on a valid date and overpayment amount being entered
+        return this.isMortgageOverpaymentAmountForDayValid(date, Double.valueOf(amount));
+
+    }
+    
     public boolean isMortgageOverpaymentEntryExists(String date)
     {
         return this.mortgage_overpayment.containsKey(date);
@@ -108,7 +129,10 @@ public class MortgageCalculator extends FinanceApr
     {
         return this.formatNumberToDecimalPlaces(2,(this.getMortgageRemaining() + Double.valueOf(this.getInterestPayableTotal())));
     }
-    
+    protected String getTotalMortgagePayableSavedByOverpaying()
+    {
+        return this.formatNumberToDecimalPlaces(2,(this.getTotalPayableIncInterestOriginal() - Double.valueOf(this.getTotalMortgagePayableIncInterest())));
+    }    
     public boolean setMonthlyRepaymentAmount(String amount, double max_num, double min_num, String field_name, String field_label)
     {
         //if(!this.isNumberInputValid(apr, monthly_repayment,Double.valueOf(apr.MAX_MONTHLY_REPAYMENT), 10, "monthly_repayment", "monthly repayment"))
@@ -221,6 +245,10 @@ public class MortgageCalculator extends FinanceApr
         msg += "Date range: " + this.getCalendarDateFrom() + " - " + getCalendarDateTo() +"\n";
         msg += "Total interest paid: " + this.getInterestPayableTotal() +"\n";
         msg += "Total payable: " + this.getTotalMortgagePayableIncInterest() +"\n";
+        if(this.mortgage_overpayment.size() > 0)
+        {
+            msg += "Note: You could save " + getDailyInterestSavedByOverpaying() + "\nas a result of your total overpayments of " + this.getTotalOverpayments() + ".\n";
+        }
         msg += "----------------------------------------------------------------\n";
         
         return msg;
@@ -249,6 +277,13 @@ public class MortgageCalculator extends FinanceApr
         milestone_75percent_amount_paid = false; 
         this.mortgage_milestones.clear();
         this.mortgage_all_sorted.clear();
+    }
+    
+    public void setInitialMortgagePaymentAndInterestTotals()
+    {
+        this.setTotalPayableIncInterestOriginal(Double.valueOf(this.getInterestPayableTotal()));
+        System.out.println("** Debug MortgageCalculator.setInitialMortgagePaymentAndInterestTotals: this.getInterestPayableTotal(): "+ this.getInterestPayableTotal() + " **\n");
+        this.total_payable_inc_interest_original = this.total_payable_inc_interest;
     }
     
     public void processMortgateInterestCalculation()
@@ -540,7 +575,7 @@ public class MortgageCalculator extends FinanceApr
      * @param amount
      * @return true or false
      */
-    public boolean isMortgageOverpaymentAmountForDayValid(String date, double amount)
+    private boolean isMortgageOverpaymentAmountForDayValid(String date, double amount)
     {
         if(amount < this.MIN_OVERPAYMENT)
         {
