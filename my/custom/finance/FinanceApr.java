@@ -83,7 +83,7 @@ abstract class FinanceApr
     {
         DecimalFormat d = new DecimalFormat("#.##");
         //String string_places = "%." + decimal_places + "f";
-        return d.format(4);
+        return d.format(number);
     }
     
     protected String formatNumberToDecimalPlaces(int decimal_places,double number)

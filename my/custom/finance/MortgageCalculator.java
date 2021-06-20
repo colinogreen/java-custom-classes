@@ -19,6 +19,8 @@ public class MortgageCalculator extends FinanceApr
     final public int MAX_MORTGAGE_TERM = 40; // In years. Recent UK max
     final public int MAX_MORTGAGE_LOAN= 500000; // Recent UK max loan: around 411,000
     final public int MAX_MONTHLY_REPAYMENT = 3000; // Hope anyone should ever have to repay higher than that!  
+    final public double MIN_OVERPAYMENT = 10; 
+    private double total_overpayments;
 
     final static int DATE_PLUS_MONTHS = 18;
     //private HashMap<String, String> mortgage_summary = new HashMap<>();
@@ -57,6 +59,7 @@ public class MortgageCalculator extends FinanceApr
     public void addMortgageOverpayment(String date, double amount)
     {
         mortgage_overpayment.put(date, amount);
+        msgs.resetMessageString("Overpayment of  " + this.formatNumberToDecimalPlaces(2,amount) +" set for date, " + date + "\n");
     }
     
     public String listMortgageOverpayments()
@@ -530,6 +533,58 @@ public class MortgageCalculator extends FinanceApr
             }       
 
         });                       
+    }
+    /**
+     * 
+     * @param date
+     * @param amount
+     * @return true or false
+     */
+    public boolean isMortgageOverpaymentAmountForDayValid(String date, double amount)
+    {
+        if(amount < this.MIN_OVERPAYMENT)
+        {
+            this.setErrorListItem("min_overpayment_err", "The overpayment amount entered is smaller than the minimum overpayment allowed (" + this.MIN_OVERPAYMENT + ")");
+            return false;
+        }
+
+        //double overpayment_limit = this.getTotalOverpayments() + this.getMortgageRemainingForDate(date);
+        double overpayment_limit = this.getMortgageRemainingForDate(date) - this.getTotalOverpayments();
+        System.out.println("-- Debugging method (MortgageCalculator.isMortgageOverpaymentAmountForDayValid): overpayment_limit = " + overpayment_limit + " --\n");
+        if(amount > overpayment_limit)
+        {
+            this.setErrorListItem("overpayment_err", "The overpayment amount cannot be higher than the remaining mortgage (" 
+                    + this.getMortgageRemainingForDate(date) + ") for the given date minus existing overpayments (" + this.getTotalOverpayments()+ ")");
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 
+     * @return total_overpayments (entered so far)
+     */
+    private double getTotalOverpayments()
+    {
+        this.total_overpayments = 0;
+        
+        this.mortgage_overpayment.forEach((key, value)->{
+            this.total_overpayments += value;
+        });
+        
+        return this.total_overpayments;
+    }
+    /**
+     * 
+     * @param date
+     * @return mortgage remaining or 0.00
+     */
+    private Double getMortgageRemainingForDate(String date)
+    {
+        if(this.mortgage_all_sorted.containsKey(date))
+        {
+            return Double.valueOf(this.mortgage_all_sorted.get(date).split(" ")[0]);
+        }
+        return 0.00;
     }
     
     private void setMortgageDayFiguresLine(String key,String[] value_items)
