@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import my.custom.finance.MortgagePaymentDays;
+import my.custom.finance.MortgagePaymentDay;
+
 /**
  * 
  * @author Colin M.
@@ -36,9 +39,32 @@ public class MortgageCalculator extends FinanceApr
     private boolean milestone_50percent_amount_paid = false;
     private boolean milestone_75percent_amount_paid = false;
     
+    final private MortgagePaymentDays mortgage_payment_days = new MortgagePaymentDays();
+    
     public MortgageCalculator()
     {
         //this.addMortgageOverpayment();
+    }
+    
+    private void setMortgagePaymentDay(String date, double mortgage_remaining, float mortgage_interest_rate, double day_interest_rate)
+    {
+        mortgage_payment_days.addDay(date, mortgage_remaining, mortgage_interest_rate, day_interest_rate);
+    }
+    
+    private void addMortgagePaymentDay(String date, MortgagePaymentDay day)
+    {
+        //System.out.println("-- Debug method, addMortgagePaymentDay: date - " + date + "\n");
+        mortgage_payment_days.addDay(date, day);
+    }
+    
+    private void setMortgagePaymentDayFirstOfMonth()
+    {
+        
+    }
+    
+    private MortgagePaymentDays getMortgagePaymentDays()
+    {
+        return mortgage_payment_days;
     }
     
     /**
@@ -146,7 +172,8 @@ public class MortgageCalculator extends FinanceApr
     {
         if (this.inputValueValidated(amount, max_num, min_num, field_name, field_label))
         {
-            this.setInterestRate(Double.valueOf(amount));
+            //this.setInterestRate(Double.valueOf(amount));
+            this.setInterestRate(Float.parseFloat(amount));
             return true;
         }
         
@@ -288,6 +315,8 @@ public class MortgageCalculator extends FinanceApr
         msgs.resetMessageString("** Calculations are based on a monthly repayment of £" + month_repayment + " **"); // clear any previous results and set string
         //this.mortgage_remaining_initial = this.mortgage_remaining;
         this.mortgage_remaining_increment = this.mortgage_remaining;
+        
+        
         LocalDate date = this.calendar_date_from;
 
         LocalDate date_add_single;
@@ -297,6 +326,7 @@ public class MortgageCalculator extends FinanceApr
         
         for(int i = 0; i <= (int)dayCount; i++)
         {
+            MortgagePaymentDay mpd = new MortgagePaymentDay();
             int day_type = 0; // 1= regular mortgage repayment day; 3= overpayment day; 4 = mortgage_repayment day + overpayment day, etc.
             date_add_single = date.plusDays(i);
             
@@ -305,6 +335,7 @@ public class MortgageCalculator extends FinanceApr
             if(i != 0 && date_add_single.getDayOfMonth() == 1)
             {
                 day_type +=1; // Mortgage payment day
+                mpd.setFirstOfTheMonth();// Mortgage payment day
                 if(mortgage_remaining_increment > this.month_repayment)
                 {
                     this.mortgage_remaining_increment -= this.month_repayment; // deduct monthly mortgage repayment if it is the 1st of a month and not the first run of the loop (which may take into account first day, anyway.
@@ -320,12 +351,15 @@ public class MortgageCalculator extends FinanceApr
             if(this.mortgage_overpayment.containsKey(date_add_single.toString()))
             {
                 day_type +=3; // Register Mortgage overpayment day
+                mpd.setOverpaymentDay();// Register Mortgage overpayment day
                 this.mortgage_remaining_increment = (this.mortgage_remaining_increment - this.mortgage_overpayment.get(date_add_single.toString()));
                 this.addMortgageMilestone(date_add_single.toString(), "An overpayment of " +  formatNumberToDecimalPlaces(2,this.mortgage_overpayment.get(date_add_single.toString()))
                         + " was made. Mortgage remaining is "+ formatNumberToDecimalPlaces(2,this.mortgage_remaining_increment ) + ".");
             }
             this.day_int_charge = (this.getDayInterestRate() * this.mortgage_remaining_increment / 100);
-            String mort_entry_string = String.format("%.2f",this.mortgage_remaining_increment) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge);
+            //String mort_entry_string = String.format("%.2f",this.mortgage_remaining_increment) + " " + this.interest_rate + " " + String.format("%.2f",this.day_int_charge);
+            //this.setMortgagePaymentDay(date_add_single.toString(),this.mortgage_remaining_increment,this.interest_rate , this.day_int_charge );
+            mpd.setData(date_add_single.toString(),this.mortgage_remaining_increment,this.interest_rate , this.day_int_charge );
 
             if(i != 0 && (day_type== 1 || day_type == 3 || day_type == 4))
             {    
@@ -335,10 +369,8 @@ public class MortgageCalculator extends FinanceApr
                 this.checkMortMilestonePercentAmountPaid(date_add_single.toString());
 
             }
-            
-            mort_entry_string += " " + day_type;
-            
-            mortgage_all_sorted.put(date_add_single.toString(),mort_entry_string);
+            // Add the data from the MortgagePaymentDay class to the wrapper MortgagePaymentDays class
+            this.addMortgagePaymentDay(date_add_single.toString(), mpd);
 
             if(this.mortgage_remaining_increment <= 0)
             {
@@ -531,30 +563,14 @@ public class MortgageCalculator extends FinanceApr
     }
     private void setMortgageDayFiguresAllEntries()
     {
-        msgs.resetMessageString(); // clear any previous results
-        this.mortgage_all_sorted.forEach((key, value)->{
-            
-            String[] value_items = value.split(" ");
-            this.setMortgageDayFiguresLine(key, value_items);
-
-        });        
+        msgs.resetMessageString(this.getMortgagePaymentDays().getMortgagePaymentDayData(false, "\n"));      
     }
     /**
      * Show each entry for summary
      */
     private void setMortgageDayFiguresSummary()
     {
-        msgs.resetMessageString(); // clear any previous results
-        this.mortgage_all_sorted.forEach((key, value)->{
-            
-            String[] value_items = value.split(" ");
-            // Check if mortgage repayment day by querying the fourth array key (should it exist)
-            if(value_items.length == 4 && (value_items[3].equals("1") || value_items[3].equals("4")))
-            {
-                this.setMortgageDayFiguresLine(key, value_items);
-            }       
-
-        });                       
+        msgs.resetMessageString(this.getMortgagePaymentDays().getMortgagePaymentDayData(true, "\n"));                    
     }
     /**
      * 

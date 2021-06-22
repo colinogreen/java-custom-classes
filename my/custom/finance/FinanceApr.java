@@ -25,7 +25,7 @@ import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help di
 abstract class FinanceApr 
 {  
     
-    protected double interest_rate;
+    protected float interest_rate;
 
     
     //* For validation
@@ -575,7 +575,7 @@ abstract class FinanceApr
      * Used in original pre-2021 mortgage-calculator
      * @param interest_rate 
      */
-    public void setInterestRate(double interest_rate)
+    public void setInterestRate(float interest_rate)
     {
         this.interest_rate = interest_rate;
         this.setDayInterestRate();
