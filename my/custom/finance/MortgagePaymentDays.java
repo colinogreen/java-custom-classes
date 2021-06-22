@@ -31,6 +31,11 @@ final public class MortgagePaymentDays
         mortgage_payment_day.put(date, day);
     }
     
+    public void clearRecords()
+    {       
+        mortgage_payment_day.clear();
+    }
+    
     private MortgagePaymentDay getDayObject(String date)
     {
         return mortgage_payment_day.get(date);

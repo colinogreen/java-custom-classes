@@ -1,7 +1,7 @@
 package my.custom.finance;
 
 /**
- * Individual Mortgage payment day class
+ * Individual Mortgage payment day class that is used by the MortgagePaymentDays multi-record processing class.
  * @author Colin M.
  */
 final class MortgagePaymentDay

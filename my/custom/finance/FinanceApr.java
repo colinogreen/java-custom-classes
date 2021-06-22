@@ -23,17 +23,15 @@ import my.custom.MessageDisplayer; // 2021-06-07 - New separate class to help di
  * This class uses the class MessageDisplayer at https://github.com/colinogreen/java-custom-classes/blob/master/my/custom/MessageDisplayer.java
  */
 abstract class FinanceApr 
-{  
-    
+{      
     protected float interest_rate;
-
     
     //* For validation
     final protected static String DOUBLE_PATTERN = "[0-9]+(\\.){0,1}[0-9]*";
     final protected static String INTEGER_PATTERN = "\\d+";
     
     double day_interest_rate;
-    //double day_interest_charge;
+
     protected double month_repayment;
     protected double day_int_charge;
     protected double daily_interest_total = 0;
@@ -47,15 +45,9 @@ abstract class FinanceApr
     protected LocalDate calendar_date_from;
     //private Calendar calendar_date_from;
     protected LocalDate calendar_date_to;
-    //private Calendar calendar_date_to;
 
-    protected String error_list_messages;
     final protected MessageDisplayer msgs;
-    
-    final protected HashMap<String, String> error_list = new HashMap<>();
 
-    
-    //public Finance_apr(double month_repayment, double mort_remain, double apr_int_rate)
     public FinanceApr()
     {
         this.msgs = new MessageDisplayer();
@@ -74,8 +66,7 @@ abstract class FinanceApr
     {
         this.daily_interest_total += value;
     }
-    
-    
+        
     protected void setDailyInterestTotalOriginal(double value)
     {
         this.daily_interest_total_original += value;
@@ -110,7 +101,7 @@ abstract class FinanceApr
      */
     protected String formatNumberToDecimalPlaces(double number)
     {
-        DecimalFormat d = new DecimalFormat("#.00");
+        DecimalFormat d = new DecimalFormat("0.00");
         //String string_places = "%." + decimal_places + "f";
         return d.format(number);
     }
@@ -221,7 +212,6 @@ abstract class FinanceApr
                 + this.calendar_date_from.toString() + ") appears to be greater than Date to (" +  this.calendar_date_to.toString() + ")" ); // clear any previous results and set string            
         }
 
-        //return true;
         return isdatefromgreaterthandateto;
     }
     
@@ -258,8 +248,8 @@ abstract class FinanceApr
         /* Return true if date format is valid */
         return true;
     }
+    
     /**
-     * 
      * @param number_string
      * @param parameter_name
      * @param message
@@ -289,6 +279,7 @@ abstract class FinanceApr
         }
         return true;
     }
+    // * Validation | END //   
     
     public void resetMessageString()
     {
@@ -366,8 +357,6 @@ abstract class FinanceApr
     {
         return msgs.getErrorListValuesArray();
     }
-    // * Validation | END //
-
     
     public boolean setCalendarDate(String start_or_end_date, boolean start_date)
     {
