@@ -103,14 +103,23 @@ abstract class FinanceApr
     {
         return this.formatNumberToDecimalPlaces(2, this.daily_interest_total);
     }
-    
+    /**
+     * Version of the method that forces two decimal places
+     * @param number
+     * @return 
+     */
     protected String formatNumberToDecimalPlaces(double number)
     {
-        DecimalFormat d = new DecimalFormat("#.##");
+        DecimalFormat d = new DecimalFormat("#.00");
         //String string_places = "%." + decimal_places + "f";
         return d.format(number);
     }
-    
+    /**
+     * Version of the method that allows the supply of decimal places
+     * @param decimal_places
+     * @param number
+     * @return 
+     */
     protected String formatNumberToDecimalPlaces(int decimal_places,double number)
     {
         //DecimalFormat d = new DecimalFormat("#.##");
@@ -186,7 +195,6 @@ abstract class FinanceApr
         if(too_small)
         {
             this.setErrorListItem(field_name, " * The value entered for '" + field_label + "' is too small (minimum: " + min_num + ").");
-            //System.out.println("** DEBUG * The value entered for '" + field_label + "' is too small? (minimum: " + min_num + ") - input: " + console_input + " too_small?: " + too_small + ".");
         }
 
         return too_small;
@@ -223,9 +231,6 @@ abstract class FinanceApr
      */
     public boolean isDateToGreaterThanDateFrom()
     {
-//        msgs.resetMessageString("++ Debug Method: Finance_apr::isDateToGreaterThanDateFrom. Start date: " 
-//                + this.calendar_date_to.toString() + " | End date: " +  this.calendar_date_from.toString() ); // clear any previous results and set string
-        //return true;
         return this.calendar_date_to.isAfter(this.calendar_date_from);
     }
     /**
@@ -307,11 +312,6 @@ abstract class FinanceApr
     public void setErrorListItem(String control_name, String error_message, boolean reset_error_list)
     {
         msgs.setErrorListItem(control_name ,error_message,reset_error_list);
-//        if(reset_error_list)
-//        {
-//            this.resetErrorList();
-//        }
-//        this.error_list.put(control_name ,error_message);
     }    
     public int getErrorListCount()
     {
@@ -322,13 +322,6 @@ abstract class FinanceApr
     {
         return msgs.getErrorListItems();
     }
-
-    
-//    public void setErrorListMessage(String control_name, String message)
-//    {
-//        this.setErrorListItem(control_name, message);
-//    }
-    
     
     /**
      * 
@@ -363,7 +356,6 @@ abstract class FinanceApr
     public void resetErrorList()
     {
         msgs.resetErrorList();
-        //System.out.println("++ DEBUG ++:\nerror_list_clear_results:" + this.error_list.toString() + "\n+++");
     }
     
     public Object[] getErrorListKeysArray()
@@ -453,38 +445,7 @@ abstract class FinanceApr
         }
         
     }
-//    /**
-//     * @deprecated
-//     */
-//    private void setDateRanges()
-//    {
-//        String date_set1[] = this.date_from.split("-");
-//        //System.out.println(date_set[0] + "," + (Integer.valueOf(date_set[1]) -1) + "," + date_set[0]);
-//        if(date_set1.length == 3)
-//        {         
-//            this.calendar_date_from = LocalDate.parse(date_from);            
-//        }
-//        else
-//        {
-//            this.setDefaultDateFrom();
-//            msgs.resetMessageString("Note: default start date to: " + this.calendar_date_from.toString());  // clear any previous results and set string
-//        }
-//
-//        String date_set2[] = this.date_to.split("-");
-//        if(date_set1.length == 3)
-//        {
-////            int year = Integer.valueOf(date_set2[0]);
-////            int month200 = (Integer.valueOf(date_set2[1]) -1);
-////            int day = Integer.valueOf(date_set2[2]);
-//            //this.calendar_date_to.of(year, month, day);            
-//            this.calendar_date_to = LocalDate.parse(date_to);            
-//        }
-//        else
-//        {
-//            this.setDefaultDateTo();
-//            msgs.resetMessageString("Note: Setting default end date to: " + this.calendar_date_to.toString() + "."); // clear any previous results and set string
-//        }
-//    }
+
     /**
      * Set a LocalDate based start date
      * A public alias of setCalendarDateFrom method for command line app when date is not entered
@@ -549,6 +510,7 @@ abstract class FinanceApr
     }
     
     /**
+     * @deprecated
      * Testing method:
      * Used in original pre-2021 mortgage-calculator
      */
