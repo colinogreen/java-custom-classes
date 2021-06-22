@@ -11,7 +11,7 @@ final class MortgagePaymentDay
     private float mortgage_interest_rate;
     private double day_interest_rate;
     
-    private boolean first_of_the_month = false;
+    private boolean mortgage_repayment_day = false;
     private boolean overpayment_day = false;
 
     /**
@@ -19,7 +19,9 @@ final class MortgagePaymentDay
      */
     public MortgagePaymentDay()
     {
-
+        /**
+         * tbc
+         */
     }
     /**
      * 
@@ -50,9 +52,9 @@ final class MortgagePaymentDay
         this.setDayInterestRate(day_interest_rate);
     }
     
-    public void setFirstOfTheMonth()
+    public void setMortgageRepaymentDay()
     {
-        this.first_of_the_month = true;
+        this.mortgage_repayment_day = true;
     }
     
     public void setOverpaymentDay()
@@ -60,9 +62,9 @@ final class MortgagePaymentDay
         this.overpayment_day = true;
     }
     
-    public boolean isFirstOfTheMonth()
+    public boolean isMortgageRepaymentDay()
     {
-        return this.first_of_the_month;
+        return this.mortgage_repayment_day;
     }
     
     public boolean isOverpaymentDay()
